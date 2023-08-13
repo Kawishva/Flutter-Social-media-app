@@ -1,17 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class UserProfileScreen extends StatefulWidget {
-  const UserProfileScreen({super.key});
+  String currentUser;
+  UserProfileScreen({super.key, required this.currentUser});
 
   @override
   State<UserProfileScreen> createState() => _UserProfileScreenState();
 }
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
-  User? currentUser = FirebaseAuth.instance.currentUser;
-
   List<String> postImageIds = []; // List of post URLs from Firebase
 
   void initState() {
@@ -37,7 +37,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 // Stream for user's post data changes
                 stream: FirebaseFirestore.instance
                     .collection('Users')
-                    .doc(currentUser!.uid) // Replace with the currentUser!.uid
+                    .doc(
+                        widget.currentUser) // Replace with the currentUser!.uid
                     .snapshots(),
                 builder: (context, postSnapshot) {
                   // Check if the document exists and contains data
@@ -127,8 +128,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   // Stream for user data changes
                   stream: FirebaseFirestore.instance
                       .collection('Users')
-                      .doc(currentUser!
-                          .uid) // Replace with the  currentUser!.uid
+                      .doc(widget
+                          .currentUser) // Replace with the  currentUser!.uid
                       .snapshots(),
                   builder: (context, userDataSnapshot) {
                     if (userDataSnapshot.connectionState ==

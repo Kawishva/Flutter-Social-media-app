@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:login_project/screens/chat_list_screen.dart';
 import 'package:login_project/screens/home_screen.dart';
@@ -14,6 +15,7 @@ class NavigationBarComponent extends StatefulWidget {
 }
 
 class _NavigationBarComponentState extends State<NavigationBarComponent> {
+  User? currentUser = FirebaseAuth.instance.currentUser;
   int currentIndex = 0;
 
   void initState() {
@@ -37,11 +39,11 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
             children: [
               IndexedStack(
                 index: currentIndex,
-                children: const [
+                children: [
                   HomeScreen(),
                   SearchScrean(),
                   ChatListsScreen(),
-                  UserProfileScreen(),
+                  UserProfileScreen(currentUser: currentUser!.uid),
                 ],
               ),
               Align(

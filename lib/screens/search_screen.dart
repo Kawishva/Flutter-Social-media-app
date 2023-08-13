@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
+import 'package:login_project/screens/user_profile.dart';
 
 class SearchScrean extends StatefulWidget {
   const SearchScrean({super.key});
@@ -130,7 +131,8 @@ class _SearchScreanState extends State<SearchScrean> {
                                     return ListTile(
                                       title: Text('Loading...'),
                                     );
-                                  } else {
+                                  } else if (userIdsList[index] !=
+                                      currentUser!.uid) {
                                     String userName = otherUserSnapshot.data!
                                         .get('ProfileName');
 
@@ -139,53 +141,73 @@ class _SearchScreanState extends State<SearchScrean> {
 
                                     return Padding(
                                       padding: EdgeInsets.symmetric(
-                                          vertical: 2, horizontal: 5),
-                                      child: Container(
-                                        width: width,
-                                        height: width * 0.2,
-                                        decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(20)),
-                                        child: Row(
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 10, right: 20),
-                                              child: Container(
-                                                width: width * 0.18,
-                                                height: width * 0.18,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                    width: 1,
-                                                    color: Colors.black,
+                                          vertical: 2, horizontal: 10),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    UserProfileScreen(
+                                                      currentUser:
+                                                          userIdsList[index],
+                                                    )),
+                                          );
+                                        },
+                                        child: Container(
+                                          width: width,
+                                          height: width * 0.2,
+                                          decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(20)),
+                                          child: Row(
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 10, right: 20),
+                                                child: Container(
+                                                  width: width * 0.18,
+                                                  height: width * 0.18,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                      width: 1,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                  child: CircleAvatar(
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    backgroundImage: userDpUrl
+                                                            .isEmpty
+                                                        ? AssetImage(
+                                                            'lib/image_assests/icons/user_dp2.png')
+                                                        : Image.network(
+                                                                userDpUrl)
+                                                            .image,
                                                   ),
                                                 ),
-                                                child: CircleAvatar(
-                                                  backgroundColor: Colors.white,
-                                                  backgroundImage: userDpUrl
-                                                          .isEmpty
-                                                      ? AssetImage(
-                                                          'lib/image_assests/icons/user_dp2.png')
-                                                      : Image.network(userDpUrl)
-                                                          .image,
-                                                ),
                                               ),
-                                            ),
-                                            Text(
-                                              userName,
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 15,
-                                                  fontStyle: FontStyle.italic,
-                                                  fontWeight: FontWeight.bold),
-                                            )
-                                          ],
+                                              Text(
+                                                userName,
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 15,
+                                                    fontStyle: FontStyle.italic,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     );
-                                    // Add more widgets as needed
+                                  } else {
+                                    return Container(
+                                      width: 0,
+                                      height: 0,
+                                    );
                                   }
                                 },
                               );
