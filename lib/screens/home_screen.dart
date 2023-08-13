@@ -17,7 +17,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int? otherLikeCount, otherCommentCount;
-  List<String> postImageIdsList = [];
 
   User? currentUser = FirebaseAuth.instance.currentUser;
 
@@ -52,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           .snapshots(),
                       builder: (context, socialpostSnapshots) {
                         // Check if the document exists and contains data
-                        postImageIdsList.clear();
+
                         if (socialpostSnapshots.hasData &&
                             socialpostSnapshots.data!.exists) {
                           /* List<String> postImageIdsList = List<String>.from(

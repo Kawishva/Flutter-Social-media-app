@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/gestures.dart';
+
 import 'package:flutter/material.dart';
 
 class SearchScrean extends StatefulWidget {
@@ -40,7 +40,7 @@ class _SearchScreanState extends State<SearchScrean> {
               width: width,
               height: width * 0.18,
               decoration: BoxDecoration(
-                  color: Colors.black,
+                  color: Colors.white,
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(30),
                       bottomRight: Radius.circular(30))),
@@ -59,7 +59,7 @@ class _SearchScreanState extends State<SearchScrean> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                          color: Colors.blue,
+                          color: Colors.black,
                           width: 3,
                           strokeAlign: BorderSide.strokeAlignOutside),
                       borderRadius: const BorderRadius.all(Radius.circular(25)),
@@ -69,7 +69,7 @@ class _SearchScreanState extends State<SearchScrean> {
                     prefixIcon: const Icon(
                       Icons.search,
                       size: 25,
-                      color: Colors.blue,
+                      color: Colors.black,
                     ),
                   ),
                   textAlign: TextAlign.start,
@@ -77,7 +77,7 @@ class _SearchScreanState extends State<SearchScrean> {
                   maxLength: 15,
                   style: const TextStyle(
                     fontSize: 16,
-                    color: Colors.blue,
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -89,7 +89,7 @@ class _SearchScreanState extends State<SearchScrean> {
               child: Container(
                   width: width,
                   decoration: BoxDecoration(
-                      color: Colors.amber,
+                      color: Colors.grey.withOpacity(0.5),
                       borderRadius: BorderRadius.only(
                           topRight: Radius.circular(30),
                           topLeft: Radius.circular(30))),
@@ -115,7 +115,7 @@ class _SearchScreanState extends State<SearchScrean> {
 
                         if (userIdsList.isNotEmpty) {
                           return ListView.builder(
-                            padding: EdgeInsets.only(top: 0),
+                            padding: EdgeInsets.only(top: 5, bottom: 5),
                             scrollDirection: Axis.vertical,
                             itemCount: userIdsList.length,
                             itemBuilder: (BuildContext context, int index) {
@@ -137,11 +137,55 @@ class _SearchScreanState extends State<SearchScrean> {
                                     String userDpUrl =
                                         otherUserSnapshot.data!.get('DpURL');
 
-                                    return ListTile(
-                                      title: Text(userName),
-                                      subtitle: Text(userIdsList[index]),
-                                      // Add more widgets as needed
+                                    return Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 2, horizontal: 5),
+                                      child: Container(
+                                        width: width,
+                                        height: width * 0.2,
+                                        decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(20)),
+                                        child: Row(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 10, right: 20),
+                                              child: Container(
+                                                width: width * 0.18,
+                                                height: width * 0.18,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(
+                                                    width: 1,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                                child: CircleAvatar(
+                                                  backgroundColor: Colors.white,
+                                                  backgroundImage: userDpUrl
+                                                          .isEmpty
+                                                      ? AssetImage(
+                                                          'lib/image_assests/icons/user_dp2.png')
+                                                      : Image.network(userDpUrl)
+                                                          .image,
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              userName,
+                                              style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 15,
+                                                  fontStyle: FontStyle.italic,
+                                                  fontWeight: FontWeight.bold),
+                                            )
+                                          ],
+                                        ),
+                                      ),
                                     );
+                                    // Add more widgets as needed
                                   }
                                 },
                               );

@@ -174,6 +174,7 @@ class _StoryPostScreenState extends State<StoryPostScreen> {
                                                 imageDescription!.isEmpty
                                             ? 'Description'
                                             : imageDescription!,
+                                    maxLines: 2,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontSize: 15,
