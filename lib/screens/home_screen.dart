@@ -44,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Align(
                   alignment: Alignment.topCenter,
-                  child: StreamBuilder<DocumentSnapshot>(
+                  child: StreamBuilder(
                       stream: FirebaseFirestore.instance
                           .collection('AllUserPosts')
                           .doc('UserPostIds')
@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   scrollDirection: Axis.vertical,
                                   itemCount: postImageIdsList.length,
                                   itemBuilder: (context, index) {
-                                    return StreamBuilder<DocumentSnapshot>(
+                                    return StreamBuilder(
                                       stream: FirebaseFirestore.instance
                                           .collection('AllUserPostsDetails')
                                           .doc(postImageIdsList[index])
@@ -100,8 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               .data!
                                               .get('CommentCount');
 
-                                          return StreamBuilder<
-                                                  DocumentSnapshot>(
+                                          return StreamBuilder(
                                               stream: FirebaseFirestore.instance
                                                   .collection('Users')
                                                   .doc(otherUserId)
@@ -198,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         }),
                   ),
                 ),
-                StreamBuilder<DocumentSnapshot>(
+                StreamBuilder(
                   stream: FirebaseFirestore.instance
                       .collection('Users')
                       .doc(currentUser!.uid)

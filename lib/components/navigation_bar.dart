@@ -5,10 +5,13 @@ import 'package:login_project/screens/home_screen.dart';
 import 'package:login_project/screens/story_post_screen.dart';
 
 import 'package:login_project/screens/search_screen.dart';
+import '../screens/notification_Screen.dart';
 import '../screens/user_profile.dart';
 
+// ignore: must_be_immutable
 class NavigationBarComponent extends StatefulWidget {
-  const NavigationBarComponent({super.key});
+  int currentStateChanger;
+  NavigationBarComponent({super.key, required this.currentStateChanger});
 
   @override
   State<NavigationBarComponent> createState() => _NavigationBarComponentState();
@@ -20,6 +23,7 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
 
   void initState() {
     super.initState();
+    currentIndex = widget.currentStateChanger;
   }
 
   @override
@@ -40,10 +44,11 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
               IndexedStack(
                 index: currentIndex,
                 children: [
-                  HomeScreen(),
-                  SearchScrean(),
-                  ChatListsScreen(),
-                  UserProfileScreen(currentUser: currentUser!.uid),
+                  HomeScreen(), //0
+                  SearchScrean(), //1
+                  NotificationScreen(), //2
+                  ChatListsScreen(), //3
+                  UserProfileScreen(currentUser: currentUser!.uid), //4
                 ],
               ),
               Align(
@@ -75,7 +80,7 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                         ),
                       ),
                       SizedBox(
-                        width: width * 0.1,
+                        width: width * 0.08,
                       ),
                       GestureDetector(
                         onTap: () {
@@ -89,7 +94,23 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                         ),
                       ),
                       SizedBox(
-                        width: width * 0.1,
+                        width: width * 0.08,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            currentIndex = 2;
+                          });
+                        },
+                        child: Icon(
+                          currentIndex == 2
+                              ? Icons.notifications_active_rounded
+                              : Icons.notifications_none,
+                          size: width * 0.09,
+                        ),
+                      ),
+                      SizedBox(
+                        width: width * 0.08,
                       ),
                       GestureDetector(
                         onTap: () {
@@ -101,27 +122,11 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                         },
                         child: Icon(
                           Icons.image_outlined,
-                          size: width * 0.09,
+                          size: width * 0.08,
                         ),
                       ),
                       SizedBox(
-                        width: width * 0.1,
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            currentIndex = 2;
-                          });
-                        },
-                        child: Icon(
-                          currentIndex == 2
-                              ? Icons.chat_rounded
-                              : Icons.chat_outlined,
-                          size: width * 0.09,
-                        ),
-                      ),
-                      SizedBox(
-                        width: width * 0.1,
+                        width: width * 0.08,
                       ),
                       GestureDetector(
                         onTap: () {
@@ -131,6 +136,22 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                         },
                         child: Icon(
                           currentIndex == 3
+                              ? Icons.chat_rounded
+                              : Icons.chat_outlined,
+                          size: width * 0.08,
+                        ),
+                      ),
+                      SizedBox(
+                        width: width * 0.08,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            currentIndex = 4;
+                          });
+                        },
+                        child: Icon(
+                          currentIndex == 4
                               ? Icons.person_4_sharp
                               : Icons.person_4_outlined,
                           size: width * 0.09,

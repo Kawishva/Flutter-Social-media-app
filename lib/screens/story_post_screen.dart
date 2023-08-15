@@ -337,7 +337,9 @@ class _StoryPostScreenState extends State<StoryPostScreen> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const NavigationBarComponent()),
+                          builder: (context) => NavigationBarComponent(
+                                currentStateChanger: 0,
+                              )),
                     );
                   },
                   icon: Icon(
@@ -760,7 +762,10 @@ class _StoryPostScreenState extends State<StoryPostScreen> {
       //after successfull uploading it redirects to home screen
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const NavigationBarComponent()),
+        MaterialPageRoute(
+            builder: (context) => NavigationBarComponent(
+                  currentStateChanger: 0,
+                )),
       );
     } on FirebaseAuthException catch (e) {
       setState(() {

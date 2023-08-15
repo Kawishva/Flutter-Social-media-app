@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
+import 'package:login_project/screens/postShow_Screen.dart';
 
 // ignore: must_be_immutable
 class UserProfileScreen extends StatefulWidget {
@@ -65,7 +66,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         ),
                         itemCount: postImageIds.length,
                         itemBuilder: (context, index) {
-                          return StreamBuilder<DocumentSnapshot>(
+                          return StreamBuilder(
                             stream: FirebaseFirestore.instance
                                 .collection('AllUserPostsDetails')
                                 .doc(postImageIds[index])
@@ -87,16 +88,28 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                       snapshot.data!.get('CommentCount');*/
 
                                 return GestureDetector(
-                                  onTap: () {},
-                                  onLongPress: () {},
+                                  onTap: () {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => PostShowScreen(
+                                                postId: postImageIds[index],
+                                                currentUserId:
+                                                    widget.currentUser,
+                                              )),
+                                    );
+                                  },
                                   child: Container(
                                     width: 10,
                                     height: 10,
                                     decoration: BoxDecoration(),
-                                    child: Image.network(
-                                      postURL,
-                                      fit: BoxFit.cover,
-                                      filterQuality: FilterQuality.high,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(5),
+                                      child: Image.network(
+                                        postURL,
+                                        fit: BoxFit.cover,
+                                        filterQuality: FilterQuality.high,
+                                      ),
                                     ),
                                   ),
                                 );
@@ -124,7 +137,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   }
                 },
               ),
-              StreamBuilder<DocumentSnapshot>(
+              StreamBuilder(
                   // Stream for user data changes
                   stream: FirebaseFirestore.instance
                       .collection('Users')

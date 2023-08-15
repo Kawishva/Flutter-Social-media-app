@@ -251,7 +251,9 @@ class _UserNamePictureScreenState extends State<UserNamePictureScreen> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                  builder: (context) => const NavigationBarComponent()),
+                  builder: (context) => NavigationBarComponent(
+                        currentStateChanger: 0,
+                      )),
             );
           } else {
             //save user name on firestore
@@ -270,7 +272,9 @@ class _UserNamePictureScreenState extends State<UserNamePictureScreen> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                  builder: (context) => const NavigationBarComponent()),
+                  builder: (context) => NavigationBarComponent(
+                        currentStateChanger: 0,
+                      )),
             );
           }
         });
@@ -323,7 +327,9 @@ class _UserNamePictureScreenState extends State<UserNamePictureScreen> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                  builder: (context) => const NavigationBarComponent()),
+                  builder: (context) => NavigationBarComponent(
+                        currentStateChanger: 0,
+                      )),
             );
           } else {
             //save user name on firestore
@@ -342,7 +348,9 @@ class _UserNamePictureScreenState extends State<UserNamePictureScreen> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                  builder: (context) => const NavigationBarComponent()),
+                  builder: (context) => NavigationBarComponent(
+                        currentStateChanger: 0,
+                      )),
             );
           }
         });

@@ -28,7 +28,8 @@ class PhotoHolderComponent extends StatelessWidget {
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.5),
@@ -43,10 +44,13 @@ class PhotoHolderComponent extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Image.network(
-                      postURL,
-                      filterQuality: FilterQuality.high,
-                      fit: BoxFit.cover,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(
+                        postURL,
+                        filterQuality: FilterQuality.high,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),

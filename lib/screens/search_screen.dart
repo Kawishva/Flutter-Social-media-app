@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter/material.dart';
-import 'package:login_project/screens/user_profile.dart';
+
+import 'otherUserProf_Screen.dart';
 
 class SearchScrean extends StatefulWidget {
   const SearchScrean({super.key});
@@ -148,8 +148,10 @@ class _SearchScreanState extends State<SearchScrean> {
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    UserProfileScreen(
+                                                    OtherUserProfileScreen(
                                                       currentUser:
+                                                          currentUser!.uid,
+                                                      otherUserId:
                                                           userIdsList[index],
                                                     )),
                                           );

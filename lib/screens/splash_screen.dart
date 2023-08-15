@@ -37,7 +37,9 @@ class _SplashScreanState extends State<SplashScrean> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (context) => const NavigationBarComponent()),
+              builder: (context) => NavigationBarComponent(
+                    currentStateChanger: 0,
+                  )),
         );
       } on FirebaseAuthException catch (e) {
         // Handle timeout exception as a connection error
