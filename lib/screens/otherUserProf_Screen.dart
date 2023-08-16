@@ -385,6 +385,8 @@ class _OtherUserProfileScreen extends State<OtherUserProfileScreen> {
         .collection('UserRequests')
         .doc(widget.currentUser + widget.otherUserId)
         .set({
+      'Sender': widget.currentUser,
+      'Reciever': widget.otherUserId,
       'State':
           'Pending..' //saving story Ids in real time db:firestore to an array
     });

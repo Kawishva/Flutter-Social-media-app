@@ -38,7 +38,7 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
         backgroundColor: Colors.white,
         body: SafeArea(child: LayoutBuilder(builder: (context, constraints) {
           final width = constraints.maxWidth;
-          final height = constraints.maxHeight;
+          //final height = constraints.maxHeight;
           return Stack(
             children: [
               IndexedStack(
@@ -46,7 +46,9 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                 children: [
                   HomeScreen(), //0
                   SearchScrean(), //1
-                  NotificationScreen(), //2
+                  NotificationScreen(
+                    currentUser: currentUser!.uid,
+                  ), //2
                   ChatListsScreen(), //3
                   UserProfileScreen(currentUser: currentUser!.uid), //4
                 ],
@@ -57,7 +59,7 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                   width: width,
                   height: width * 0.14,
                   decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.black,
                       borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30))),
@@ -76,6 +78,7 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                               ? Icons.home_sharp
                               : Icons.home_outlined,
                           size: width * 0.09,
+                          color: Colors.white,
                         ),
                       ),
                       SizedBox(
@@ -90,6 +93,7 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                         child: Icon(
                           currentIndex == 1 ? Icons.search : Icons.search_off,
                           size: width * 0.09,
+                          color: Colors.white,
                         ),
                       ),
                       SizedBox(
@@ -106,6 +110,7 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                               ? Icons.notifications_active_rounded
                               : Icons.notifications_none,
                           size: width * 0.09,
+                          color: Colors.white,
                         ),
                       ),
                       SizedBox(
@@ -122,6 +127,7 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                         child: Icon(
                           Icons.image_outlined,
                           size: width * 0.08,
+                          color: Colors.white,
                         ),
                       ),
                       SizedBox(
@@ -138,6 +144,7 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                               ? Icons.chat_rounded
                               : Icons.chat_outlined,
                           size: width * 0.08,
+                          color: Colors.white,
                         ),
                       ),
                       SizedBox(
@@ -154,6 +161,7 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                               ? Icons.person_4_sharp
                               : Icons.person_4_outlined,
                           size: width * 0.09,
+                          color: Colors.white,
                         ),
                       )
                     ],

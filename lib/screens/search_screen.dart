@@ -94,7 +94,7 @@ class _SearchScreanState extends State<SearchScrean> {
                       borderRadius: BorderRadius.only(
                           topRight: Radius.circular(30),
                           topLeft: Radius.circular(30))),
-                  child: StreamBuilder<DocumentSnapshot>(
+                  child: StreamBuilder(
                     stream: FirebaseFirestore.instance
                         .collection('AllUserIDs')
                         .doc('UserIDs')
@@ -120,7 +120,7 @@ class _SearchScreanState extends State<SearchScrean> {
                             scrollDirection: Axis.vertical,
                             itemCount: userIdsList.length,
                             itemBuilder: (BuildContext context, int index) {
-                              return StreamBuilder<DocumentSnapshot>(
+                              return StreamBuilder(
                                 stream: FirebaseFirestore.instance
                                     .collection('Users')
                                     .doc(userIdsList[index])

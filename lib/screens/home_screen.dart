@@ -69,7 +69,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: Colors.transparent,
                                 ),
                                 child: ListView.builder(
-                                  padding: EdgeInsets.only(top: width * 0.2),
+                                  padding: EdgeInsets.only(
+                                      top: width * 0.2, bottom: width * 0.05),
                                   scrollDirection: Axis.vertical,
                                   itemCount: postImageIdsList.length,
                                   itemBuilder: (context, index) {
