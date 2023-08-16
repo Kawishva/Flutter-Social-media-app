@@ -38,7 +38,7 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
         backgroundColor: Colors.white,
         body: SafeArea(child: LayoutBuilder(builder: (context, constraints) {
           final width = constraints.maxWidth;
-          //final height = constraints.maxHeight;
+          final height = constraints.maxHeight;
           return Stack(
             children: [
               IndexedStack(
@@ -54,7 +54,6 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  margin: EdgeInsets.only(bottom: 0, top: width * 1.8),
                   width: width,
                   height: width * 0.14,
                   decoration: BoxDecoration(
