@@ -35,23 +35,26 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
         body: SafeArea(child: LayoutBuilder(builder: (context, constraints) {
           final width = constraints.maxWidth;
           //final height = constraints.maxHeight;
           return Stack(
             children: [
-              IndexedStack(
-                index: currentIndex,
-                children: [
-                  HomeScreen(), //0
-                  SearchScrean(), //1
-                  NotificationScreen(
-                    currentUser: currentUser!.uid,
-                  ), //2
-                  ChatListsScreen(), //3
-                  UserProfileScreen(currentUser: currentUser!.uid), //4
-                ],
+              Positioned.fill(
+                child: IndexedStack(
+                  index: currentIndex,
+                  children: [
+                    HomeScreen(), //0
+                    SearchScrean(), //1
+                    NotificationScreen(
+                      currentUser: currentUser!.uid,
+                    ), //2
+                    ChatListsScreen(), //3
+                    UserProfileScreen(currentUser: currentUser!.uid), //4
+                  ],
+                ),
               ),
               Align(
                 alignment: Alignment.bottomCenter,

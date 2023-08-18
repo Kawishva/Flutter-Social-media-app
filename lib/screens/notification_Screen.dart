@@ -1,5 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'dart:core';
+import 'package:intl/intl.dart';
+
+import '../components/flash_messages.dart';
 
 // ignore: must_be_immutable
 class NotificationScreen extends StatefulWidget {
@@ -255,57 +260,146 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                                     SizedBox(
                                                       width: width * 0.15,
                                                     ),
-                                                    Container(
-                                                      alignment:
-                                                          Alignment.center,
-                                                      width: 70,
-                                                      height: 50,
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        color: Colors.black,
-                                                      ),
-                                                      child: TextButton(
-                                                        onPressed: () {},
-                                                        child: Text(
-                                                          'Accept',
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          style: TextStyle(
-                                                            fontSize: 13,
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    Container(
-                                                      alignment:
-                                                          Alignment.center,
-                                                      width: 70,
-                                                      height: 50,
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        color: Colors.black,
-                                                      ),
-                                                      child: TextButton(
-                                                        onPressed: () {},
-                                                        child: Text(
-                                                          'Reject',
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          style: TextStyle(
-                                                            fontSize: 13,
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
+                                                    StreamBuilder(
+                                                        stream: FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                                'UserRequests')
+                                                            .doc(requsetList[
+                                                                index])
+                                                            .snapshots(),
+                                                        builder: (context,
+                                                            requstedSnapshots) {
+                                                          if (requstedSnapshots
+                                                                  .connectionState ==
+                                                              ConnectionState
+                                                                  .waiting) {
+                                                            // Show a loading indicator while post data is being fetched
+                                                            return Center(
+                                                              child:
+                                                                  CircularProgressIndicator(
+                                                                color: Colors
+                                                                    .black,
+                                                              ),
+                                                            );
+                                                          } else {
+                                                            String
+                                                                requsetState =
+                                                                requstedSnapshots
+                                                                    .data!
+                                                                    .get(
+                                                                        'State');
+
+                                                            if (requsetState ==
+                                                                'Pending..') {
+                                                              return Row(
+                                                                children: [
+                                                                  Container(
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .center,
+                                                                    width: 70,
+                                                                    height: 50,
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              10),
+                                                                      color: Colors
+                                                                          .black,
+                                                                    ),
+                                                                    child:
+                                                                        TextButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        userAcceptFunction(
+                                                                            requsetList[index],
+                                                                            senderId,
+                                                                            recieverId);
+                                                                        //accept funtion
+                                                                      },
+                                                                      child:
+                                                                          Text(
+                                                                        'Accept',
+                                                                        textAlign:
+                                                                            TextAlign.center,
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              13,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: 10,
+                                                                  ),
+                                                                  Container(
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .center,
+                                                                    width: 70,
+                                                                    height: 50,
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              10),
+                                                                      color: Colors
+                                                                          .black,
+                                                                    ),
+                                                                    child:
+                                                                        TextButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        //accept funtion
+                                                                      },
+                                                                      child:
+                                                                          Text(
+                                                                        'Reject',
+                                                                        textAlign:
+                                                                            TextAlign.center,
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              13,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              );
+                                                            } else {
+                                                              return Padding(
+                                                                padding: EdgeInsets.only(
+                                                                    left: width *
+                                                                        0.05),
+                                                                child: Text(
+                                                                  'Request is $requsetState',
+                                                                  style: TextStyle(
+                                                                      color: Color
+                                                                          .fromRGBO(
+                                                                              4,
+                                                                              45,
+                                                                              79,
+                                                                              1),
+                                                                      fontSize:
+                                                                          13,
+                                                                      fontStyle:
+                                                                          FontStyle
+                                                                              .normal,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                ),
+                                                              );
+                                                            }
+                                                          }
+                                                        })
                                                   ],
                                                 ),
                                               ),
@@ -328,5 +422,44 @@ class _NotificationScreenState extends State<NotificationScreen> {
             });
       })),
     );
+  }
+
+  Future<void> userAcceptFunction(
+      String requestId, String user1, String user2) async {
+    DateTime currentStamp = DateTime.now();
+
+    String formattedTime = DateFormat.Hm().format(currentStamp);
+    String formattedDate = DateFormat.yMd().format(currentStamp);
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('UserSingleChatList')
+          .doc(requestId)
+          .set({
+        'CurrentsTime': formattedTime,
+        'CurrentDate': formattedDate,
+        'User1': user1,
+        'User2': user2
+      });
+
+      await FirebaseFirestore.instance
+          .collection('UserRequests')
+          .doc(requestId)
+          .update({'State': 'Accepted'});
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'network-request-failed') {
+        const FlashMessages(
+          imagePath:
+              'lib/image_assests/icons/flash_messege_icons/request_error_icon.png',
+          text1: 'Oops!',
+          text2: 'Connection Error..',
+          imageColor: Color(0xFF650903),
+          backGroundColor: Colors.red,
+          fontColor: Color(0xFF650903),
+          imageSize: 10,
+          duration: Duration(seconds: 5),
+        ).flashMessageFunction(context);
+      }
+    }
   }
 }
