@@ -51,7 +51,9 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                     NotificationScreen(
                       currentUser: currentUser!.uid,
                     ), //2
-                    ChatListsScreen(), //3
+                    ChatListsScreen(
+                      currentUser: currentUser!.uid,
+                    ), //3
                     UserProfileScreen(currentUser: currentUser!.uid), //4
                   ],
                 ),

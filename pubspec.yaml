@@ -47,6 +47,7 @@ dependencies:
   firebase_storage: ^11.2.5
   cloud_firestore: ^4.8.3
   intl: ^0.18.1
+  fade_shimmer: ^2.2.0
   
 
   

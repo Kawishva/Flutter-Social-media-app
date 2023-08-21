@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -128,8 +129,51 @@ class _SearchScreanState extends State<SearchScrean> {
                                 builder: (context, otherUserSnapshot) {
                                   if (otherUserSnapshot.connectionState ==
                                       ConnectionState.waiting) {
-                                    return ListTile(
-                                      title: Text('Loading...'),
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(8)),
+                                      padding: EdgeInsets.all(16),
+                                      child: Container(
+                                        width: width,
+                                        height: width * 0.2,
+                                        decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(20)),
+                                        child: Row(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 10, right: 20),
+                                              child: Container(
+                                                width: width * 0.18,
+                                                height: width * 0.18,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(
+                                                    width: 1,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                                child: FadeShimmer.round(
+                                                  size: width * 0.18,
+                                                  fadeTheme: FadeTheme.dark,
+                                                  millisecondsDelay: 300,
+                                                ),
+                                              ),
+                                            ),
+                                            FadeShimmer(
+                                              height: 8,
+                                              width: 150,
+                                              radius: 4,
+                                              millisecondsDelay: 300,
+                                              fadeTheme: FadeTheme.dark,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     );
                                   } else if (userIdsList[index] !=
                                       currentUser!.uid) {

@@ -33,7 +33,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             builder: (context, snapshot) {
               if (snapshot.hasData && snapshot.data!.exists) {
                 List<String> requsetList =
-                    List<String>.from(snapshot.data!.get('requestId'))
+                    List<String>.from(snapshot.data!.get('requestId') ?? [])
                         .reversed
                         .toList();
 
@@ -355,6 +355,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                                                       onPressed:
                                                                           () {
                                                                         //accept funtion
+                                                                        userRejectFunction(
+                                                                            requsetList[index],
+                                                                            senderId,
+                                                                            recieverId);
                                                                       },
                                                                       child:
                                                                           Text(
@@ -446,6 +450,30 @@ class _NotificationScreenState extends State<NotificationScreen> {
           .collection('UserRequests')
           .doc(requestId)
           .update({'State': 'Accepted'});
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'network-request-failed') {
+        const FlashMessages(
+          imagePath:
+              'lib/image_assests/icons/flash_messege_icons/request_error_icon.png',
+          text1: 'Oops!',
+          text2: 'Connection Error..',
+          imageColor: Color(0xFF650903),
+          backGroundColor: Colors.red,
+          fontColor: Color(0xFF650903),
+          imageSize: 10,
+          duration: Duration(seconds: 5),
+        ).flashMessageFunction(context);
+      }
+    }
+  }
+
+  Future<void> userRejectFunction(
+      String requestId, String user1, String user2) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('UserRequests')
+          .doc(requestId)
+          .update({'State': 'Rejected'});
     } on FirebaseAuthException catch (e) {
       if (e.code == 'network-request-failed') {
         const FlashMessages(

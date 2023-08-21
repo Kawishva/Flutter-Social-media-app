@@ -1,7 +1,14 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/material.dart';
+import 'package:login_project/screens/singleChat_screen.dart';
 
 class ChatListsScreen extends StatefulWidget {
-  const ChatListsScreen({super.key});
+  String currentUser;
+
+  ChatListsScreen({super.key, required this.currentUser});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -10,7 +17,6 @@ class ChatListsScreen extends StatefulWidget {
 
 class _ChatListsScreenState extends State<ChatListsScreen> {
   final searchText = TextEditingController();
-  int currentIndex = 0;
 
   void initState() {
     super.initState();
@@ -23,42 +29,371 @@ class _ChatListsScreenState extends State<ChatListsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<int> postIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    double screenWidth = MediaQuery.of(context).size.width;
-    // double screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
-      body: SafeArea(
-        child: Stack(
+      body: SafeArea(child: LayoutBuilder(builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final height = constraints.maxHeight;
+        return Stack(
           children: [
             Align(
               alignment: Alignment.center,
               child: Padding(
                 padding: const EdgeInsets.only(top: 100),
                 child: Container(
-                  width: screenWidth,
+                  width: width,
+                  height: height,
                   decoration: const BoxDecoration(
                     color: Colors.blue,
                   ),
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(vertical: 22),
-                    scrollDirection: Axis.vertical,
-                    itemCount: postIds.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return null;
+                  child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('UserSingleChatList')
+                          .snapshots(),
+                      builder: (context, docSnapshot) {
+                        if (docSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          // Show a loading indicator while post data is being fetched
+                          return Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.black,
+                            ),
+                          );
+                        } else {
+                          List<String> currentUserChatList = [];
 
-                      /* return currentIndex == 0
-                          ? PhotoHolderComponent()
-                          : PhotoHolderComponent();*/
-                    },
-                  ),
+                          for (QueryDocumentSnapshot doc
+                              in docSnapshot.data!.docs) {
+                            String user1 = doc.get('User1').toString();
+                            String user2 = doc.get('User2').toString();
+
+                            if (widget.currentUser == user1 ||
+                                widget.currentUser == user2) {
+                              currentUserChatList.add(doc.id);
+                            }
+                          }
+
+                          return ListView.builder(
+                              padding: EdgeInsets.only(top: 20, bottom: 10),
+                              scrollDirection: Axis.vertical,
+                              itemCount: currentUserChatList.length,
+                              itemBuilder: (context, index) {
+                                return StreamBuilder(
+                                    stream: FirebaseFirestore.instance
+                                        .collection('UserSingleChatList')
+                                        .doc(currentUserChatList[index])
+                                        .snapshots(),
+                                    builder: (context, docDetails) {
+                                      if (docDetails.connectionState ==
+                                          ConnectionState.waiting) {
+                                        // Show a loading indicator while post data is being fetched
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 5, horizontal: 5),
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 5, horizontal: 5),
+                                            width: width,
+                                            height: width * 0.2,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 10, right: 20),
+                                                  child: Container(
+                                                    width: width * 0.15,
+                                                    height: width * 0.15,
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                        width: 1,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                    child: FadeShimmer.round(
+                                                      size: width * 0.18,
+                                                      fadeTheme: FadeTheme.dark,
+                                                      millisecondsDelay: 300,
+                                                    ),
+                                                  ),
+                                                ),
+                                                FadeShimmer(
+                                                  height: width * 0.03,
+                                                  width: width * 0.15,
+                                                  radius: 4,
+                                                  millisecondsDelay: 300,
+                                                  fadeTheme: FadeTheme.dark,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        String user1ID =
+                                            docDetails.data!.get('User1');
+                                        String user2ID =
+                                            docDetails.data!.get('User2');
+
+                                        if (widget.currentUser == user1ID) {
+                                          return StreamBuilder(
+                                              stream: FirebaseFirestore.instance
+                                                  .collection('Users')
+                                                  .doc(user2ID)
+                                                  .snapshots(),
+                                              builder:
+                                                  (context, requestIDsnapshot) {
+                                                if (requestIDsnapshot
+                                                        .connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  // Show a loading indicator while post data is being fetched
+                                                  return Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      color: Colors.black,
+                                                    ),
+                                                  );
+                                                } else {
+                                                  String reciverName =
+                                                      requestIDsnapshot.data!
+                                                          .get('ProfileName');
+
+                                                  String reciverDpUrl =
+                                                      requestIDsnapshot.data!
+                                                          .get('DpURL');
+
+                                                  return Padding(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        vertical: 5,
+                                                        horizontal: 5),
+                                                    child: GestureDetector(
+                                                      onTap: () {
+                                                        Navigator
+                                                            .pushReplacement(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  SingleChatScreen(
+                                                                    currentUser:
+                                                                        widget
+                                                                            .currentUser,
+                                                                    otherUser:
+                                                                        user2ID,
+                                                                  )),
+                                                        );
+                                                      },
+                                                      child: Container(
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                                vertical: 5,
+                                                                horizontal: 5),
+                                                        width: width,
+                                                        height: width * 0.2,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors.white,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(20),
+                                                        ),
+                                                        child: Row(
+                                                          children: [
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      left: 10,
+                                                                      right:
+                                                                          20),
+                                                              child: Container(
+                                                                width: width *
+                                                                    0.15,
+                                                                height: width *
+                                                                    0.15,
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  shape: BoxShape
+                                                                      .circle,
+                                                                  border: Border
+                                                                      .all(
+                                                                    width: 1,
+                                                                    color: Colors
+                                                                        .black,
+                                                                  ),
+                                                                ),
+                                                                child:
+                                                                    CircleAvatar(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  backgroundImage: reciverDpUrl
+                                                                          .isEmpty
+                                                                      ? AssetImage(
+                                                                          'lib/image_assests/icons/user_dp2.png')
+                                                                      : Image.network(
+                                                                              reciverDpUrl)
+                                                                          .image,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              reciverName,
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontSize: 15,
+                                                                  fontStyle:
+                                                                      FontStyle
+                                                                          .normal,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                              });
+                                        } else {
+                                          return StreamBuilder(
+                                              stream: FirebaseFirestore.instance
+                                                  .collection('Users')
+                                                  .doc(user2ID)
+                                                  .snapshots(),
+                                              builder:
+                                                  (context, requestIDsnapshot) {
+                                                if (requestIDsnapshot
+                                                        .connectionState ==
+                                                    ConnectionState.waiting) {
+                                                  // Show a loading indicator while post data is being fetched
+                                                  return Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      color: Colors.black,
+                                                    ),
+                                                  );
+                                                } else {
+                                                  String reciverName =
+                                                      requestIDsnapshot.data!
+                                                          .get('ProfileName');
+
+                                                  String reciverDpUrl =
+                                                      requestIDsnapshot.data!
+                                                          .get('DpURL');
+
+                                                  return Padding(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        vertical: 5,
+                                                        horizontal: 5),
+                                                    child: GestureDetector(
+                                                      onTap: () {
+                                                        Navigator
+                                                            .pushReplacement(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  SingleChatScreen(
+                                                                    currentUser:
+                                                                        widget
+                                                                            .currentUser,
+                                                                    otherUser:
+                                                                        user2ID,
+                                                                  )),
+                                                        );
+                                                      },
+                                                      child: Container(
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                                vertical: 5,
+                                                                horizontal: 5),
+                                                        width: width,
+                                                        height: width * 0.2,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors.white,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(20),
+                                                        ),
+                                                        child: Row(
+                                                          children: [
+                                                            Padding(
+                                                              padding: const EdgeInsets
+                                                                      .symmetric(
+                                                                  horizontal:
+                                                                      5),
+                                                              child: Container(
+                                                                width: width *
+                                                                    0.15,
+                                                                height: width *
+                                                                    0.15,
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  shape: BoxShape
+                                                                      .circle,
+                                                                  border: Border
+                                                                      .all(
+                                                                    width: 1,
+                                                                    color: Colors
+                                                                        .black,
+                                                                  ),
+                                                                ),
+                                                                child:
+                                                                    CircleAvatar(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  backgroundImage: reciverDpUrl
+                                                                          .isEmpty
+                                                                      ? AssetImage(
+                                                                          'lib/image_assests/icons/user_dp2.png')
+                                                                      : Image.network(
+                                                                              reciverDpUrl)
+                                                                          .image,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              reciverName,
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontSize: 15,
+                                                                  fontStyle:
+                                                                      FontStyle
+                                                                          .normal,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                              });
+                                        }
+                                      }
+                                    });
+                              });
+                        }
+                      }),
                 ),
               ),
             ),
             Align(
               alignment: Alignment.topCenter,
               child: Container(
-                width: screenWidth,
+                width: width,
                 height: 120,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -124,18 +459,6 @@ class _ChatListsScreenState extends State<ChatListsScreen> {
                             ),
                           ),
                           const SizedBox(width: 100),
-                          /*Center(
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 15, top: 5),
-                              child: StoryComponent(
-                                tapOnStoryFuntion: () {},
-                                storyHeight: 50,
-                                storyWidth: 50,
-                                storyImageAsset:
-                                    'lib/image_assests/icons/user_dp2.png',
-                              ),
-                            ),
-                          ),*/
                         ],
                       ),
                     ),
@@ -147,20 +470,17 @@ class _ChatListsScreenState extends State<ChatListsScreen> {
                         child: Row(
                           children: [
                             TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  currentIndex = 0;
-                                });
-                              },
+                              onPressed: () {},
                               child: Text(
                                 'Chats',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: currentIndex == 0
+                                  color: /*currentIndex == 0
                                       ? Colors.blue
-                                      : Colors.black,
+                                      : Colors.black,*/
+                                      Colors.blue,
                                 ),
                               ),
                             ),
@@ -173,20 +493,17 @@ class _ChatListsScreenState extends State<ChatListsScreen> {
                             ),
                             const SizedBox(width: 60),
                             TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  currentIndex = 1;
-                                });
-                              },
+                              onPressed: () {},
                               child: Text(
                                 'Group Chats',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: currentIndex == 1
+                                  color: /*currentIndex == 0
                                       ? Colors.blue
-                                      : Colors.black,
+                                      : Colors.black,*/
+                                      Colors.blue,
                                 ),
                               ),
                             ),
@@ -199,8 +516,8 @@ class _ChatListsScreenState extends State<ChatListsScreen> {
               ),
             ),
           ],
-        ),
-      ),
+        );
+      })),
     );
   }
 }

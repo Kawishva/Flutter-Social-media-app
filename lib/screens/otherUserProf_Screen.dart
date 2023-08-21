@@ -67,13 +67,43 @@ class _OtherUserProfileScreen extends State<OtherUserProfileScreen> {
                                   builder: (context, requstSnapshot1) {
                                     if (requstSnapshot1.hasData &&
                                         requstSnapshot1.data!.exists) {
-                                      return Text(
-                                        'Friends',
-                                        style: TextStyle(
-                                            fontSize: 17,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.amber),
-                                      );
+                                      String state =
+                                          requstSnapshot1.data!.get('State');
+
+                                      if (state == 'Pending..' ||
+                                          state == 'Accepted') {
+                                        return Text(
+                                          state,
+                                          style: TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.amber),
+                                        );
+                                      } else {
+                                        return Container(
+                                          alignment: Alignment.center,
+                                          width: 70,
+                                          height: 50,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            color: Colors.black,
+                                          ),
+                                          child: TextButton(
+                                            onPressed: () {
+                                              requestFunction();
+                                            },
+                                            child: Text(
+                                              'Request.',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }
                                     } else {
                                       return StreamBuilder(
                                           stream: FirebaseFirestore.instance
@@ -85,13 +115,46 @@ class _OtherUserProfileScreen extends State<OtherUserProfileScreen> {
                                           builder: (context, requstSnapshot2) {
                                             if (requstSnapshot2.hasData &&
                                                 requstSnapshot2.data!.exists) {
-                                              return Text(
-                                                'Friends',
-                                                style: TextStyle(
-                                                    fontSize: 17,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.amber),
-                                              );
+                                              String state = requstSnapshot2
+                                                  .data!
+                                                  .get('State');
+                                              if (state == 'Pending..' ||
+                                                  state == 'Accepted') {
+                                                return Text(
+                                                  state,
+                                                  style: TextStyle(
+                                                      fontSize: 17,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.amber),
+                                                );
+                                              } else {
+                                                return Container(
+                                                  alignment: Alignment.center,
+                                                  width: 70,
+                                                  height: 50,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    color: Colors.black,
+                                                  ),
+                                                  child: TextButton(
+                                                    onPressed: () {
+                                                      requestFunction();
+                                                    },
+                                                    child: Text(
+                                                      'Request.',
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              }
                                             } else {
                                               return Container(
                                                 alignment: Alignment.center,
