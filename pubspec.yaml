@@ -48,6 +48,7 @@ dependencies:
   cloud_firestore: ^4.8.3
   intl: ^0.18.1
   fade_shimmer: ^2.2.0
+  flutter_bloc: ^8.1.3
   
 
   
