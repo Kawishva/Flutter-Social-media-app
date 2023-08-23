@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:login_project/screens/singleChat_screen.dart';
 
+// ignore: must_be_immutable
 class ChatListsScreen extends StatefulWidget {
   String currentUser;
 
@@ -53,9 +52,49 @@ class _ChatListsScreenState extends State<ChatListsScreen> {
                         if (docSnapshot.connectionState ==
                             ConnectionState.waiting) {
                           // Show a loading indicator while post data is being fetched
-                          return Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.black,
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 5, horizontal: 5),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 5),
+                              width: width,
+                              height: width * 0.2,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 10, right: 20),
+                                    child: Container(
+                                      width: width * 0.15,
+                                      height: width * 0.15,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          width: 1,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      child: FadeShimmer.round(
+                                        size: width * 0.18,
+                                        fadeTheme: FadeTheme.dark,
+                                        millisecondsDelay: 300,
+                                      ),
+                                    ),
+                                  ),
+                                  FadeShimmer(
+                                    height: width * 0.03,
+                                    width: width * 0.15,
+                                    radius: 4,
+                                    millisecondsDelay: 300,
+                                    fadeTheme: FadeTheme.dark,
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         } else {
@@ -184,6 +223,9 @@ class _ChatListsScreenState extends State<ChatListsScreen> {
                                                                             .currentUser,
                                                                     otherUser:
                                                                         user2ID,
+                                                                    singleChatId:
+                                                                        currentUserChatList[
+                                                                            index],
                                                                   )),
                                                         );
                                                       },
@@ -299,14 +341,15 @@ class _ChatListsScreenState extends State<ChatListsScreen> {
                                                             .pushReplacement(
                                                           context,
                                                           MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  SingleChatScreen(
-                                                                    currentUser:
-                                                                        widget
-                                                                            .currentUser,
-                                                                    otherUser:
-                                                                        user2ID,
-                                                                  )),
+                                                              builder: (context) => SingleChatScreen(
+                                                                  currentUser:
+                                                                      widget
+                                                                          .currentUser,
+                                                                  otherUser:
+                                                                      user2ID,
+                                                                  singleChatId:
+                                                                      currentUserChatList[
+                                                                          index])),
                                                         );
                                                       },
                                                       child: Container(

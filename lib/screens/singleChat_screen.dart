@@ -1,12 +1,20 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../components/flash_messages.dart';
+import '../components/messegeHolder.dart';
 import '../components/navigation_bar.dart';
 
 // ignore: must_be_immutable
 class SingleChatScreen extends StatefulWidget {
-  String currentUser, otherUser;
+  String currentUser, otherUser, singleChatId;
 
   SingleChatScreen(
-      {super.key, required this.currentUser, required this.otherUser});
+      {super.key,
+      required this.currentUser,
+      required this.otherUser,
+      required this.singleChatId});
 
   @override
   State<SingleChatScreen> createState() => _SingleChatScreenState();
@@ -52,7 +60,91 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
               Container(
                 width: width,
                 height: height,
-                decoration: BoxDecoration(color: Colors.amber),
+                decoration: BoxDecoration(color: Colors.white),
+                child: StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('UserSingleChatList')
+                        .doc(widget.singleChatId)
+                        .collection('ChatData')
+                        .snapshots(),
+                    builder: (context, msgSnapshots) {
+                      if (msgSnapshots.connectionState ==
+                          ConnectionState.waiting) {
+                        return Container();
+                      } else if (msgSnapshots.data!.docs.isNotEmpty) {
+                        List<Map<String, dynamic>> currentUserChatDataList = [];
+
+                        // Process the data
+                        currentUserChatDataList = msgSnapshots.data!.docs
+                            .map((doc) => doc.data() as Map<String, dynamic>)
+                            .toList()
+                            .reversed
+                            .toList();
+
+                        return ListView.builder(
+                            padding:
+                                EdgeInsets.only(top: 0, bottom: width * 0.15),
+                            scrollDirection: Axis.vertical,
+                            reverse: true,
+                            itemCount: currentUserChatDataList.length,
+                            itemBuilder: (context, index) {
+                              String senderId = currentUserChatDataList[index]
+                                      ['Sender']
+                                  .toString();
+                              String reciverId = currentUserChatDataList[index]
+                                      ['Reciver']
+                                  .toString();
+                              String msg = currentUserChatDataList[index]
+                                      ['Messege']
+                                  .toString();
+                              String time = currentUserChatDataList[index]
+                                      ['SentTime']
+                                  .toString();
+
+                              if (widget.currentUser == senderId) {
+                                return MessegeHolder(
+                                  userId: senderId,
+                                  userMsg: msg,
+                                  width: width,
+                                  time: time,
+                                  alignmentMessegeHolder:
+                                      CrossAxisAlignment.end,
+                                  alignmentDpAndTime: MainAxisAlignment.end,
+                                  alignmentTime: TextAlign.end,
+                                  senderIsCurrentUser: true,
+                                  messegeColor: Colors.white,
+                                  messegeHolderColor: Colors.black,
+                                  messegeHolderBorderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(15),
+                                      topRight: Radius.circular(15),
+                                      bottomLeft: Radius.circular(15)),
+                                );
+                              } else {
+                                MessegeHolder(
+                                  userId: reciverId,
+                                  userMsg: msg,
+                                  width: width,
+                                  time: time,
+                                  alignmentMessegeHolder:
+                                      CrossAxisAlignment.start,
+                                  alignmentDpAndTime: MainAxisAlignment.start,
+                                  alignmentTime: TextAlign.start,
+                                  senderIsCurrentUser: false,
+                                  messegeColor: Colors.black,
+                                  messegeHolderColor:
+                                      Colors.grey.withOpacity(0.6),
+                                  messegeHolderBorderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(15),
+                                      topRight: Radius.circular(15),
+                                      bottomRight: Radius.circular(15)),
+                                );
+                              }
+                              return null;
+                            });
+                      } else {
+                        return Container();
+                      }
+                    }),
               ),
               Align(
                 alignment: Alignment.bottomCenter,
@@ -60,17 +152,17 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                   padding: EdgeInsets.symmetric(),
                   width: width,
                   height: userMsg.text.length.toDouble() <= 30
-                      ? 70
+                      ? 60
                       : userMsg.text.length.toDouble() > 30 &&
                               userMsg.text.length.toDouble() <= 60
-                          ? 85
+                          ? 75
                           : userMsg.text.length.toDouble() > 60 &&
                                   userMsg.text.length.toDouble() < 90
-                              ? 100
+                              ? 90
                               : userMsg.text.length.toDouble() > 90 &&
                                       userMsg.text.length.toDouble() <= 120
-                                  ? 115
-                                  : 135,
+                                  ? 105
+                                  : 120,
                   decoration: BoxDecoration(
                       color: Colors.black,
                       borderRadius: BorderRadius.only(
@@ -118,16 +210,18 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                                                           .toDouble() <=
                                                       120
                                               ? 105
-                                              : 125, //set width input field holder
+                                              : 115, //set width input field holder
                               child: TextField(
                                 controller: userMsg, //set text holder
                                 obscureText: false, //allow hide & visible text
                                 keyboardType: TextInputType
                                     .text, //type of text can be input
                                 decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 15, vertical: 5),
                                   enabledBorder: const OutlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: Color(0xFFCECECE),
+                                      color: Colors.grey,
                                       width: 2,
                                     ),
                                     borderRadius:
@@ -135,8 +229,8 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                                   ),
                                   focusedBorder: const OutlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Color(0xFF7D7D7D),
-                                        width: 4,
+                                        color: Colors.grey,
+                                        width: 2,
                                         strokeAlign:
                                             BorderSide.strokeAlignOutside),
                                     borderRadius:
@@ -144,7 +238,6 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                                   ),
                                   filled: true,
                                   fillColor: Colors.white,
-                                  border: InputBorder.none,
                                 ),
                                 maxLines: null,
                                 textAlign: TextAlign.justify,
@@ -164,12 +257,13 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                               EdgeInsets.only(bottom: 15, right: 5, left: 5),
                           child: IconButton(
                               onPressed: () {
-                                print(userMsg.text.length.toDouble());
+                                sendMessegeFunction();
+                                userMsg.clear();
                               },
                               icon: Icon(
                                 Icons.send_outlined,
                                 color: Colors.white,
-                                size: width * 0.1,
+                                size: width * 0.090,
                               )),
                         ),
                       )
@@ -182,5 +276,43 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
         );
       })),
     );
+  }
+
+  Future<void> sendMessegeFunction() async {
+    DateTime currentStamp = DateTime.now();
+
+    String formattedTime = DateFormat('h:mm a').format(currentStamp);
+    String year = DateFormat.y().format(currentStamp);
+    String month = DateFormat.M().format(currentStamp);
+    String date = DateFormat.d().format(currentStamp);
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('UserSingleChatList')
+          .doc(widget.singleChatId)
+          .collection('ChatData')
+          .doc('$date.$month.$year||$formattedTime')
+          .set({
+        'SentTime': formattedTime,
+        'SentDate': '$date/$month/$year',
+        'Sender': widget.currentUser,
+        'Reciver': widget.otherUser,
+        'Messege': userMsg.text
+      });
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'network-request-failed') {
+        const FlashMessages(
+          imagePath:
+              'lib/image_assests/icons/flash_messege_icons/request_error_icon.png',
+          text1: 'Oops!',
+          text2: 'Connection Error..',
+          imageColor: Color(0xFF650903),
+          backGroundColor: Colors.red,
+          fontColor: Color(0xFF650903),
+          imageSize: 10,
+          duration: Duration(seconds: 5),
+        ).flashMessageFunction(context);
+      }
+    }
   }
 }
