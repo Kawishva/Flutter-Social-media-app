@@ -115,9 +115,9 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                                   messegeColor: Colors.white,
                                   messegeHolderColor: Colors.black,
                                   messegeHolderBorderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(15),
-                                      topRight: Radius.circular(15),
-                                      bottomLeft: Radius.circular(15)),
+                                      topLeft: Radius.circular(20),
+                                      topRight: Radius.circular(20),
+                                      bottomLeft: Radius.circular(20)),
                                 );
                               } else {
                                 MessegeHolder(
@@ -134,9 +134,9 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                                   messegeHolderColor:
                                       Colors.grey.withOpacity(0.6),
                                   messegeHolderBorderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(15),
-                                      topRight: Radius.circular(15),
-                                      bottomRight: Radius.circular(15)),
+                                      topLeft: Radius.circular(20),
+                                      topRight: Radius.circular(20),
+                                      bottomRight: Radius.circular(20)),
                                 );
                               }
                               return null;
