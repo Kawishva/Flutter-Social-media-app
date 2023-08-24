@@ -282,7 +282,7 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
   Future<void> sendMessegeFunction() async {
     DateTime currentStamp = DateTime.now();
 
-    String formattedTime = DateFormat('h:mm a').format(currentStamp);
+    String formattedTime = DateFormat('h:mm:ss a').format(currentStamp);
     String year = DateFormat.y().format(currentStamp);
     String month = DateFormat.M().format(currentStamp);
     String date = DateFormat.d().format(currentStamp);
