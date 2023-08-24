@@ -101,45 +101,46 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                                       ['SentTime']
                                   .toString();
 
-                              if (widget.currentUser == senderId) {
-                                return MessegeHolder(
-                                  userId: senderId,
-                                  userMsg: msg,
-                                  width: width,
-                                  time: time,
-                                  alignmentMessegeHolder:
-                                      CrossAxisAlignment.end,
-                                  alignmentDpAndTime: MainAxisAlignment.end,
-                                  alignmentTime: TextAlign.end,
-                                  senderIsCurrentUser: true,
-                                  messegeColor: Colors.white,
-                                  messegeHolderColor: Colors.black,
-                                  messegeHolderBorderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(20),
-                                      topRight: Radius.circular(20),
-                                      bottomLeft: Radius.circular(20)),
-                                );
-                              } else {
-                                MessegeHolder(
-                                  userId: reciverId,
-                                  userMsg: msg,
-                                  width: width,
-                                  time: time,
-                                  alignmentMessegeHolder:
-                                      CrossAxisAlignment.start,
-                                  alignmentDpAndTime: MainAxisAlignment.start,
-                                  alignmentTime: TextAlign.start,
-                                  senderIsCurrentUser: false,
-                                  messegeColor: Colors.black,
-                                  messegeHolderColor:
-                                      Colors.grey.withOpacity(0.6),
-                                  messegeHolderBorderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(20),
-                                      topRight: Radius.circular(20),
-                                      bottomRight: Radius.circular(20)),
-                                );
-                              }
-                              return null;
+                              return MessegeHolder(
+                                userId: widget.currentUser == senderId
+                                    ? senderId
+                                    : senderId,
+                                userMsg: msg,
+                                width: width,
+                                time: time,
+                                alignmentMessegeHolder:
+                                    widget.currentUser == senderId
+                                        ? CrossAxisAlignment.end
+                                        : CrossAxisAlignment.start,
+                                alignmentDpAndTime:
+                                    widget.currentUser == senderId
+                                        ? MainAxisAlignment.end
+                                        : MainAxisAlignment.start,
+                                alignmentTime: widget.currentUser == senderId
+                                    ? TextAlign.end
+                                    : TextAlign.start,
+                                messegeColor: widget.currentUser == senderId
+                                    ? Colors.white
+                                    : Colors.black,
+                                messegeHolderColor:
+                                    widget.currentUser == senderId
+                                        ? Colors.black
+                                        : Colors.grey.withOpacity(0.6),
+                                messegeHolderBorderRadius:
+                                    widget.currentUser == senderId
+                                        ? BorderRadius.only(
+                                            topLeft: Radius.circular(20),
+                                            topRight: Radius.circular(20),
+                                            bottomLeft: Radius.circular(20))
+                                        : BorderRadius.only(
+                                            topLeft: Radius.circular(20),
+                                            topRight: Radius.circular(20),
+                                            bottomRight: Radius.circular(20)),
+                                senderIsCurrentUser:
+                                    widget.currentUser == senderId
+                                        ? true
+                                        : false,
+                              );
                             });
                       } else {
                         return Container();

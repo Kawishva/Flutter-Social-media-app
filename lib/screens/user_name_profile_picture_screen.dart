@@ -269,6 +269,13 @@ class _UserNamePictureScreenState extends State<UserNamePictureScreen> {
               'Description': description.text.isNotEmpty ? description.text : ''
             });
 
+            await FirebaseFirestore.instance
+                .collection('AllUserIDs')
+                .doc('UserIDs')
+                .update({
+              'UserIDs': FieldValue.arrayUnion([currentUser.uid]),
+            });
+
             //directing to navigation bar component
             Navigator.pushReplacement(
               context,
@@ -294,7 +301,7 @@ class _UserNamePictureScreenState extends State<UserNamePictureScreen> {
           ).flashMessageFunction(context);
         }
       }
-    } else {
+    } else if (userName.isNotEmpty && imageFile != null) {
       try {
         // Create a Firebase Storage reference for the current user's profile image
         final profileImageReference = FirebaseStorage.instance
@@ -346,6 +353,13 @@ class _UserNamePictureScreenState extends State<UserNamePictureScreen> {
               'Description': description.text.isNotEmpty ? description.text : ''
             });
 
+            await FirebaseFirestore.instance
+                .collection('AllUserIDs')
+                .doc('UserIDs')
+                .update({
+              'UserIDs': FieldValue.arrayUnion([currentUser.uid]),
+            });
+
             //directing to navigation bar component
             Navigator.pushReplacement(
               context,
@@ -370,29 +384,6 @@ class _UserNamePictureScreenState extends State<UserNamePictureScreen> {
             duration: Duration(seconds: 5),
           ).flashMessageFunction(context);
         }
-      }
-    }
-
-    try {
-      await FirebaseFirestore.instance
-          .collection('AllUserIDs')
-          .doc('UserIDs')
-          .update({
-        'UserIDs': FieldValue.arrayUnion([currentUser!.uid]),
-      });
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'network-request-failed') {
-        const FlashMessages(
-          imagePath:
-              'lib/image_assests/icons/flash_messege_icons/request_error_icon.png',
-          text1: 'Oops!',
-          text2: 'Connection Error..',
-          imageColor: Color(0xFF650903),
-          backGroundColor: Colors.red,
-          fontColor: Color(0xFF650903),
-          imageSize: 10,
-          duration: Duration(seconds: 5),
-        ).flashMessageFunction(context);
       }
     }
   }

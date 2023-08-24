@@ -42,21 +42,19 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
           //final height = constraints.maxHeight;
           return Stack(
             children: [
-              Positioned.fill(
-                child: IndexedStack(
-                  index: currentIndex,
-                  children: [
-                    HomeScreen(), //0
-                    SearchScrean(), //1
-                    NotificationScreen(
-                      currentUser: currentUser!.uid,
-                    ), //2
-                    ChatListsScreen(
-                      currentUser: currentUser!.uid,
-                    ), //3
-                    UserProfileScreen(currentUser: currentUser!.uid), //4
-                  ],
-                ),
+              IndexedStack(
+                index: currentIndex,
+                children: [
+                  HomeScreen(), //0
+                  SearchScrean(), //1
+                  NotificationScreen(
+                    currentUser: currentUser!.uid,
+                  ), //2
+                  ChatListsScreen(
+                    currentUser: currentUser!.uid,
+                  ), //3
+                  UserProfileScreen(currentUser: currentUser!.uid), //4
+                ],
               ),
               Align(
                 alignment: Alignment.bottomCenter,

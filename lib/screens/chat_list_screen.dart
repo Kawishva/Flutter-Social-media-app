@@ -97,7 +97,8 @@ class _ChatListsScreenState extends State<ChatListsScreen> {
                               ),
                             ),
                           );
-                        } else {
+                        }
+                        if (docSnapshot.data!.docs.isNotEmpty) {
                           List<String> currentUserChatList = [];
 
                           for (QueryDocumentSnapshot doc
@@ -111,323 +112,343 @@ class _ChatListsScreenState extends State<ChatListsScreen> {
                             }
                           }
 
-                          return ListView.builder(
-                              padding: EdgeInsets.only(top: 20, bottom: 10),
-                              scrollDirection: Axis.vertical,
-                              itemCount: currentUserChatList.length,
-                              itemBuilder: (context, index) {
-                                return StreamBuilder(
-                                    stream: FirebaseFirestore.instance
-                                        .collection('UserSingleChatList')
-                                        .doc(currentUserChatList[index])
-                                        .snapshots(),
-                                    builder: (context, docDetails) {
-                                      if (docDetails.connectionState ==
-                                          ConnectionState.waiting) {
-                                        // Show a loading indicator while post data is being fetched
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 5, horizontal: 5),
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
+                          if (currentUserChatList.isNotEmpty) {
+                            return ListView.builder(
+                                padding: EdgeInsets.only(top: 20, bottom: 10),
+                                scrollDirection: Axis.vertical,
+                                itemCount: currentUserChatList.length,
+                                itemBuilder: (context, index) {
+                                  return StreamBuilder(
+                                      stream: FirebaseFirestore.instance
+                                          .collection('UserSingleChatList')
+                                          .doc(currentUserChatList[index])
+                                          .snapshots(),
+                                      builder: (context, docDetails) {
+                                        if (docDetails.connectionState ==
+                                            ConnectionState.waiting) {
+                                          // Show a loading indicator while post data is being fetched
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(
                                                 vertical: 5, horizontal: 5),
-                                            width: width,
-                                            height: width * 0.2,
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 10, right: 20),
-                                                  child: Container(
-                                                    width: width * 0.15,
-                                                    height: width * 0.15,
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      border: Border.all(
-                                                        width: 1,
-                                                        color: Colors.black,
+                                            child: Container(
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 5, horizontal: 5),
+                                              width: width,
+                                              height: width * 0.2,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 10,
+                                                            right: 20),
+                                                    child: Container(
+                                                      width: width * 0.15,
+                                                      height: width * 0.15,
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        border: Border.all(
+                                                          width: 1,
+                                                          color: Colors.black,
+                                                        ),
+                                                      ),
+                                                      child: FadeShimmer.round(
+                                                        size: width * 0.18,
+                                                        fadeTheme:
+                                                            FadeTheme.dark,
+                                                        millisecondsDelay: 300,
                                                       ),
                                                     ),
-                                                    child: FadeShimmer.round(
-                                                      size: width * 0.18,
-                                                      fadeTheme: FadeTheme.dark,
-                                                      millisecondsDelay: 300,
-                                                    ),
                                                   ),
-                                                ),
-                                                FadeShimmer(
-                                                  height: width * 0.03,
-                                                  width: width * 0.15,
-                                                  radius: 4,
-                                                  millisecondsDelay: 300,
-                                                  fadeTheme: FadeTheme.dark,
-                                                ),
-                                              ],
+                                                  FadeShimmer(
+                                                    height: width * 0.03,
+                                                    width: width * 0.15,
+                                                    radius: 4,
+                                                    millisecondsDelay: 300,
+                                                    fadeTheme: FadeTheme.dark,
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                        );
-                                      } else {
-                                        String user1ID =
-                                            docDetails.data!.get('User1');
-                                        String user2ID =
-                                            docDetails.data!.get('User2');
+                                          );
+                                        } else {
+                                          String user1ID =
+                                              docDetails.data!.get('User1');
+                                          String user2ID =
+                                              docDetails.data!.get('User2');
 
-                                        if (widget.currentUser == user1ID) {
-                                          return StreamBuilder(
-                                              stream: FirebaseFirestore.instance
-                                                  .collection('Users')
-                                                  .doc(user2ID)
-                                                  .snapshots(),
-                                              builder:
-                                                  (context, requestIDsnapshot) {
-                                                if (requestIDsnapshot
-                                                        .connectionState ==
-                                                    ConnectionState.waiting) {
-                                                  // Show a loading indicator while post data is being fetched
-                                                  return Center(
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                      color: Colors.black,
-                                                    ),
-                                                  );
-                                                } else {
-                                                  String reciverName =
-                                                      requestIDsnapshot.data!
-                                                          .get('ProfileName');
+                                          if (widget.currentUser == user1ID) {
+                                            return StreamBuilder(
+                                                stream: FirebaseFirestore
+                                                    .instance
+                                                    .collection('Users')
+                                                    .doc(user1ID)
+                                                    .snapshots(),
+                                                builder: (context,
+                                                    requestIDsnapshot) {
+                                                  if (requestIDsnapshot
+                                                          .connectionState ==
+                                                      ConnectionState.waiting) {
+                                                    // Show a loading indicator while post data is being fetched
+                                                    return Center(
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        color: Colors.black,
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    String reciverName =
+                                                        requestIDsnapshot.data!
+                                                            .get('ProfileName');
 
-                                                  String reciverDpUrl =
-                                                      requestIDsnapshot.data!
-                                                          .get('DpURL');
+                                                    String reciverDpUrl =
+                                                        requestIDsnapshot.data!
+                                                            .get('DpURL');
 
-                                                  return Padding(
-                                                    padding: const EdgeInsets
-                                                            .symmetric(
-                                                        vertical: 5,
-                                                        horizontal: 5),
-                                                    child: GestureDetector(
-                                                      onTap: () {
-                                                        Navigator
-                                                            .pushReplacement(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  SingleChatScreen(
+                                                    return Padding(
+                                                      padding: const EdgeInsets
+                                                              .symmetric(
+                                                          vertical: 5,
+                                                          horizontal: 5),
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          Navigator
+                                                              .pushReplacement(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                                builder:
+                                                                    (context) =>
+                                                                        SingleChatScreen(
+                                                                          currentUser:
+                                                                              widget.currentUser,
+                                                                          otherUser:
+                                                                              user1ID,
+                                                                          singleChatId:
+                                                                              currentUserChatList[index],
+                                                                        )),
+                                                          );
+                                                        },
+                                                        child: Container(
+                                                          padding: EdgeInsets
+                                                              .symmetric(
+                                                                  vertical: 5,
+                                                                  horizontal:
+                                                                      5),
+                                                          width: width,
+                                                          height: width * 0.2,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: Colors.white,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20),
+                                                          ),
+                                                          child: Row(
+                                                            children: [
+                                                              Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        left:
+                                                                            10,
+                                                                        right:
+                                                                            20),
+                                                                child:
+                                                                    Container(
+                                                                  width: width *
+                                                                      0.15,
+                                                                  height:
+                                                                      width *
+                                                                          0.15,
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    shape: BoxShape
+                                                                        .circle,
+                                                                    border:
+                                                                        Border
+                                                                            .all(
+                                                                      width: 1,
+                                                                      color: Colors
+                                                                          .black,
+                                                                    ),
+                                                                  ),
+                                                                  child:
+                                                                      CircleAvatar(
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .white,
+                                                                    backgroundImage: reciverDpUrl
+                                                                            .isEmpty
+                                                                        ? AssetImage(
+                                                                            'lib/image_assests/icons/user_dp2.png')
+                                                                        : Image.network(reciverDpUrl)
+                                                                            .image,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                reciverName,
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .black,
+                                                                    fontSize:
+                                                                        15,
+                                                                    fontStyle:
+                                                                        FontStyle
+                                                                            .normal,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }
+                                                });
+                                          } else {
+                                            return StreamBuilder(
+                                                stream: FirebaseFirestore
+                                                    .instance
+                                                    .collection('Users')
+                                                    .doc(user1ID)
+                                                    .snapshots(),
+                                                builder: (context,
+                                                    requestIDsnapshot) {
+                                                  if (requestIDsnapshot
+                                                          .connectionState ==
+                                                      ConnectionState.waiting) {
+                                                    // Show a loading indicator while post data is being fetched
+                                                    return Center(
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        color: Colors.black,
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    String reciverName =
+                                                        requestIDsnapshot.data!
+                                                            .get('ProfileName');
+
+                                                    String reciverDpUrl =
+                                                        requestIDsnapshot.data!
+                                                            .get('DpURL');
+
+                                                    return Padding(
+                                                      padding: const EdgeInsets
+                                                              .symmetric(
+                                                          vertical: 5,
+                                                          horizontal: 5),
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          Navigator
+                                                              .pushReplacement(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                                builder: (context) => SingleChatScreen(
                                                                     currentUser:
                                                                         widget
                                                                             .currentUser,
                                                                     otherUser:
-                                                                        user2ID,
+                                                                        user1ID,
                                                                     singleChatId:
                                                                         currentUserChatList[
-                                                                            index],
-                                                                  )),
-                                                        );
-                                                      },
-                                                      child: Container(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                vertical: 5,
-                                                                horizontal: 5),
-                                                        width: width,
-                                                        height: width * 0.2,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: Colors.white,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(20),
-                                                        ),
-                                                        child: Row(
-                                                          children: [
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .only(
-                                                                      left: 10,
-                                                                      right:
-                                                                          20),
-                                                              child: Container(
-                                                                width: width *
-                                                                    0.15,
-                                                                height: width *
-                                                                    0.15,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  shape: BoxShape
-                                                                      .circle,
-                                                                  border: Border
-                                                                      .all(
-                                                                    width: 1,
-                                                                    color: Colors
-                                                                        .black,
-                                                                  ),
-                                                                ),
-                                                                child:
-                                                                    CircleAvatar(
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .white,
-                                                                  backgroundImage: reciverDpUrl
-                                                                          .isEmpty
-                                                                      ? AssetImage(
-                                                                          'lib/image_assests/icons/user_dp2.png')
-                                                                      : Image.network(
-                                                                              reciverDpUrl)
-                                                                          .image,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                              reciverName,
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .black,
-                                                                  fontSize: 15,
-                                                                  fontStyle:
-                                                                      FontStyle
-                                                                          .normal,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }
-                                              });
-                                        } else {
-                                          return StreamBuilder(
-                                              stream: FirebaseFirestore.instance
-                                                  .collection('Users')
-                                                  .doc(user2ID)
-                                                  .snapshots(),
-                                              builder:
-                                                  (context, requestIDsnapshot) {
-                                                if (requestIDsnapshot
-                                                        .connectionState ==
-                                                    ConnectionState.waiting) {
-                                                  // Show a loading indicator while post data is being fetched
-                                                  return Center(
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                      color: Colors.black,
-                                                    ),
-                                                  );
-                                                } else {
-                                                  String reciverName =
-                                                      requestIDsnapshot.data!
-                                                          .get('ProfileName');
-
-                                                  String reciverDpUrl =
-                                                      requestIDsnapshot.data!
-                                                          .get('DpURL');
-
-                                                  return Padding(
-                                                    padding: const EdgeInsets
-                                                            .symmetric(
-                                                        vertical: 5,
-                                                        horizontal: 5),
-                                                    child: GestureDetector(
-                                                      onTap: () {
-                                                        Navigator
-                                                            .pushReplacement(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                              builder: (context) => SingleChatScreen(
-                                                                  currentUser:
-                                                                      widget
-                                                                          .currentUser,
-                                                                  otherUser:
-                                                                      user2ID,
-                                                                  singleChatId:
-                                                                      currentUserChatList[
-                                                                          index])),
-                                                        );
-                                                      },
-                                                      child: Container(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                vertical: 5,
-                                                                horizontal: 5),
-                                                        width: width,
-                                                        height: width * 0.2,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: Colors.white,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(20),
-                                                        ),
-                                                        child: Row(
-                                                          children: [
-                                                            Padding(
-                                                              padding: const EdgeInsets
-                                                                      .symmetric(
+                                                                            index])),
+                                                          );
+                                                        },
+                                                        child: Container(
+                                                          padding: EdgeInsets
+                                                              .symmetric(
+                                                                  vertical: 5,
                                                                   horizontal:
                                                                       5),
-                                                              child: Container(
-                                                                width: width *
-                                                                    0.15,
-                                                                height: width *
-                                                                    0.15,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  shape: BoxShape
-                                                                      .circle,
-                                                                  border: Border
-                                                                      .all(
-                                                                    width: 1,
-                                                                    color: Colors
-                                                                        .black,
+                                                          width: width,
+                                                          height: width * 0.2,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: Colors.white,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20),
+                                                          ),
+                                                          child: Row(
+                                                            children: [
+                                                              Padding(
+                                                                padding: const EdgeInsets
+                                                                        .symmetric(
+                                                                    horizontal:
+                                                                        5),
+                                                                child:
+                                                                    Container(
+                                                                  width: width *
+                                                                      0.15,
+                                                                  height:
+                                                                      width *
+                                                                          0.15,
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    shape: BoxShape
+                                                                        .circle,
+                                                                    border:
+                                                                        Border
+                                                                            .all(
+                                                                      width: 1,
+                                                                      color: Colors
+                                                                          .black,
+                                                                    ),
+                                                                  ),
+                                                                  child:
+                                                                      CircleAvatar(
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .white,
+                                                                    backgroundImage: reciverDpUrl
+                                                                            .isEmpty
+                                                                        ? AssetImage(
+                                                                            'lib/image_assests/icons/user_dp2.png')
+                                                                        : Image.network(reciverDpUrl)
+                                                                            .image,
                                                                   ),
                                                                 ),
-                                                                child:
-                                                                    CircleAvatar(
-                                                                  backgroundColor:
-                                                                      Colors
-                                                                          .white,
-                                                                  backgroundImage: reciverDpUrl
-                                                                          .isEmpty
-                                                                      ? AssetImage(
-                                                                          'lib/image_assests/icons/user_dp2.png')
-                                                                      : Image.network(
-                                                                              reciverDpUrl)
-                                                                          .image,
-                                                                ),
                                                               ),
-                                                            ),
-                                                            Text(
-                                                              reciverName,
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .black,
-                                                                  fontSize: 15,
-                                                                  fontStyle:
-                                                                      FontStyle
-                                                                          .normal,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                          ],
+                                                              Text(
+                                                                reciverName,
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .black,
+                                                                    fontSize:
+                                                                        15,
+                                                                    fontStyle:
+                                                                        FontStyle
+                                                                            .normal,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              ),
+                                                            ],
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                  );
-                                                }
-                                              });
+                                                    );
+                                                  }
+                                                });
+                                          }
                                         }
-                                      }
-                                    });
-                              });
+                                      });
+                                });
+                          } else {
+                            return Container();
+                          }
+                        } else {
+                          return Container();
                         }
                       }),
                 ),
