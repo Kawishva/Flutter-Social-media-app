@@ -440,8 +440,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
           .collection('UserSingleChatList')
           .doc(requestId)
           .set({
-        'CurrentsTime': formattedTime,
-        'CurrentDate': formattedDate,
+        'Created': '$formattedTime||$formattedDate',
+        'LastMessegeTime': '$formattedDate||$formattedDate',
+        'LastMessegeTimeShow': '',
+        'LastMessege': '',
         'User1': user1,
         'User2': user2
       });

@@ -54,10 +54,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         if (socialpostSnapshots.hasData &&
                             socialpostSnapshots.data!.exists) {
-                          /* List<String> postImageIdsList = List<String>.from(
-                              socialpostSnapshots.data!.get('PostIDs'));
-                          postImageIdsList
-                              .shuffle(); */
                           List<String> postImageIdsList = List<String>.from(
                                   socialpostSnapshots.data!.get('PostIDs'))
                               .reversed
