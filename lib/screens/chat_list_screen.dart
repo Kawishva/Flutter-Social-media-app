@@ -47,6 +47,7 @@ class _ChatListsScreenState extends State<ChatListsScreen> {
                   child: StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
                           .collection('UserSingleChatList')
+                          .orderBy('LastMessegeTime', descending: true)
                           .snapshots(),
                       builder: (context, docSnapshot) {
                         if (docSnapshot.connectionState ==
@@ -181,6 +182,10 @@ class _ChatListsScreenState extends State<ChatListsScreen> {
                                               docDetails.data!.get('User1');
                                           String user2ID =
                                               docDetails.data!.get('User2');
+                                          String lastMsg = docDetails.data!
+                                              .get('LastMessege');
+                                          String lastMsgTime = docDetails.data!
+                                              .get('LastMessegeTimeShow');
 
                                           return StreamBuilder(
                                               stream: FirebaseFirestore.instance
@@ -303,6 +308,73 @@ class _ChatListsScreenState extends State<ChatListsScreen> {
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .bold),
+                                                            ),
+                                                            Stack(
+                                                              children: [
+                                                                Padding(
+                                                                  padding: EdgeInsets
+                                                                      .only(
+                                                                          left:
+                                                                              40,
+                                                                          top:
+                                                                              25),
+                                                                  child:
+                                                                      Container(
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .topRight,
+                                                                    width: 175,
+                                                                    height: 50,
+                                                                    child: Text(
+                                                                      lastMsg,
+                                                                      textAlign:
+                                                                          TextAlign
+                                                                              .center,
+                                                                      maxLines:
+                                                                          2,
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .black,
+                                                                          fontSize:
+                                                                              12,
+                                                                          fontStyle: FontStyle
+                                                                              .normal,
+                                                                          fontWeight: FontWeight
+                                                                              .normal,
+                                                                          overflow:
+                                                                              TextOverflow.ellipsis),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets
+                                                                      .only(
+                                                                          left:
+                                                                              160,
+                                                                          top:
+                                                                              55),
+                                                                  child: Text(
+                                                                    lastMsg
+                                                                            .toString()
+                                                                            .isNotEmpty
+                                                                        ? lastMsgTime
+                                                                        : '',
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .end,
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .black,
+                                                                        fontSize:
+                                                                            11,
+                                                                        fontStyle:
+                                                                            FontStyle
+                                                                                .italic,
+                                                                        fontWeight:
+                                                                            FontWeight.normal),
+                                                                  ),
+                                                                ),
+                                                              ],
                                                             ),
                                                           ],
                                                         ),

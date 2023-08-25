@@ -98,7 +98,7 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                                       ['Messege']
                                   .toString();
                               String time = currentUserChatDataList[index]
-                                      ['SentTime']
+                                      ['Time']
                                   .toString();
 
                               return MessegeHolder(
@@ -259,7 +259,6 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                           child: IconButton(
                               onPressed: () {
                                 sendMessegeFunction();
-                                userMsg.clear();
                               },
                               icon: Icon(
                                 Icons.send_outlined,
@@ -283,36 +282,51 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
     DateTime currentStamp = DateTime.now();
 
     String formattedTime = DateFormat('h:mm:ss a').format(currentStamp);
+    String time = DateFormat('h:mm a').format(currentStamp);
     String year = DateFormat.y().format(currentStamp);
     String month = DateFormat.M().format(currentStamp);
     String date = DateFormat.d().format(currentStamp);
 
-    try {
-      await FirebaseFirestore.instance
-          .collection('UserSingleChatList')
-          .doc(widget.singleChatId)
-          .collection('ChatData')
-          .doc('$date.$month.$year||$formattedTime')
-          .set({
-        'SentTime': formattedTime,
-        'SentDate': '$date/$month/$year',
-        'Sender': widget.currentUser,
-        'Reciver': widget.otherUser,
-        'Messege': userMsg.text
-      });
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'network-request-failed') {
-        const FlashMessages(
-          imagePath:
-              'lib/image_assests/icons/flash_messege_icons/request_error_icon.png',
-          text1: 'Oops!',
-          text2: 'Connection Error..',
-          imageColor: Color(0xFF650903),
-          backGroundColor: Colors.red,
-          fontColor: Color(0xFF650903),
-          imageSize: 10,
-          duration: Duration(seconds: 5),
-        ).flashMessageFunction(context);
+    if (userMsg.text.isNotEmpty) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('UserSingleChatList')
+            .doc(widget.singleChatId)
+            .collection('ChatData')
+            .doc('$date.$month.$year||$formattedTime')
+            .set({
+          'SentTime': formattedTime,
+          'Time': time,
+          'SentDate': '$date/$month/$year',
+          'Sender': widget.currentUser,
+          'Reciver': widget.otherUser,
+          'Messege': userMsg.text
+        });
+
+        await FirebaseFirestore.instance
+            .collection('UserSingleChatList')
+            .doc(widget.singleChatId)
+            .update({
+          'LastMessegeTime': '$date/$month/$year||$formattedTime',
+          'LastMessegeTimeShow': time,
+          'LastMessege': userMsg.text,
+        });
+
+        userMsg.clear();
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'network-request-failed') {
+          const FlashMessages(
+            imagePath:
+                'lib/image_assests/icons/flash_messege_icons/request_error_icon.png',
+            text1: 'Oops!',
+            text2: 'Connection Error..',
+            imageColor: Color(0xFF650903),
+            backGroundColor: Colors.red,
+            fontColor: Color(0xFF650903),
+            imageSize: 10,
+            duration: Duration(seconds: 5),
+          ).flashMessageFunction(context);
+        }
       }
     }
   }
