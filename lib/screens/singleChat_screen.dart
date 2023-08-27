@@ -91,9 +91,9 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                               String senderId = currentUserChatDataList[index]
                                       ['Sender']
                                   .toString();
-                              String reciverId = currentUserChatDataList[index]
+                              /*  String reciverId = currentUserChatDataList[index]
                                       ['Reciver']
-                                  .toString();
+                                  .toString();*/
                               String msg = currentUserChatDataList[index]
                                       ['Messege']
                                   .toString();

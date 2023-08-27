@@ -1,14 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/material.dart';
-
 import '../components/post_main_holder_component.dart';
 
+// ignore: must_be_immutable
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({
-    super.key,
-  });
+  String currentUserID;
+
+  HomeScreen({super.key, required this.currentUserID});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -17,8 +16,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int? otherLikeCount, otherCommentCount;
-
-  User? currentUser = FirebaseAuth.instance.currentUser;
 
   void initState() {
     super.initState();
@@ -34,7 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.white, //use for toggle night mode
       body: SafeArea(
-        top: true,
         child: LayoutBuilder(builder: (context, constraints) {
           final width = constraints.maxWidth;
 
@@ -44,117 +40,130 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Align(
                   alignment: Alignment.topCenter,
-                  child: StreamBuilder(
+                  child: StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
-                          .collection('AllUserPosts')
-                          .doc('UserPostIds')
+                          .collection('AllUserPostsDetails')
+                          .orderBy('UploadedTime', descending: true)
                           .snapshots(),
                       builder: (context, socialpostSnapshots) {
-                        // Check if the document exists and contains data
+                        if (socialpostSnapshots.connectionState ==
+                            ConnectionState.waiting) {
+                          return Container();
+                        } else if (socialpostSnapshots.data!.docs.isNotEmpty) {
+                          List<Map<String, dynamic>> userPostIDList = [];
 
-                        if (socialpostSnapshots.hasData &&
-                            socialpostSnapshots.data!.exists) {
-                          List<String> postImageIdsList = List<String>.from(
-                                  socialpostSnapshots.data!.get('PostIDs'))
-                              .reversed
+                          userPostIDList = socialpostSnapshots.data!.docs
+                              .map((doc) => doc.data() as Map<String, dynamic>)
                               .toList();
-                          if (postImageIdsList.isNotEmpty) {
-                            return Container(
-                                width: width,
-                                decoration: const BoxDecoration(
-                                  color: Colors.transparent,
-                                ),
-                                child: ListView.builder(
-                                  padding: EdgeInsets.only(
-                                      top: width * 0.2, bottom: width * 0.05),
-                                  reverse: false,
-                                  scrollDirection: Axis.vertical,
-                                  itemCount: postImageIdsList.length,
-                                  itemBuilder: (context, index) {
-                                    return StreamBuilder(
-                                      stream: FirebaseFirestore.instance
-                                          .collection('AllUserPostsDetails')
-                                          .doc(postImageIdsList[index])
-                                          .snapshots(),
-                                      builder: (context, postIDsnapshot) {
-                                        if (postIDsnapshot.connectionState ==
-                                            ConnectionState.waiting) {
-                                          // Show a loading indicator while post data is being fetched
-                                          return Center(
-                                            child: CircularProgressIndicator(
-                                              color: Colors.black,
-                                            ),
-                                          );
-                                        } else {
-                                          String otherUserId = postIDsnapshot
-                                              .data!
-                                              .get('UserID');
-                                          String othrUserPostUrl =
-                                              postIDsnapshot.data!
-                                                  .get('PostURL');
-                                          int likeCount = postIDsnapshot.data!
-                                              .get('LikeCount');
-                                          int commentCount = postIDsnapshot
-                                              .data!
-                                              .get('CommentCount');
 
-                                          return StreamBuilder(
-                                              stream: FirebaseFirestore.instance
-                                                  .collection('Users')
-                                                  .doc(otherUserId)
-                                                  .snapshots(),
-                                              builder: (context,
-                                                  otherUserDatasnapshot) {
-                                                if (otherUserDatasnapshot
-                                                        .connectionState ==
-                                                    ConnectionState.waiting) {
-                                                  return Container(); // Show nothing while user data is being fetched
-                                                } else {
-                                                  String otherUserName =
-                                                      otherUserDatasnapshot
-                                                          .data!
-                                                          .get('ProfileName');
-                                                  String otherUserDpUrl =
-                                                      otherUserDatasnapshot
-                                                          .data!
-                                                          .get('DpURL');
-                                                  return PhotoHolderComponent(
-                                                    userName: otherUserName,
-                                                    dpURL: otherUserDpUrl,
-                                                    postURL: othrUserPostUrl,
-                                                    likeCount:
-                                                        likeCount.toString(),
-                                                    commentCount:
-                                                        commentCount.toString(),
-                                                  );
-                                                }
-                                              });
-                                        }
-                                      },
-                                    );
-                                  },
-                                ));
-                          } else {
-                            return Align(
-                              alignment: Alignment.center,
-                              child: Container(
-                                child: Text('No Post has been posted yet..'),
-                              ),
-                            );
-                          }
-                        } else if (socialpostSnapshots.hasError) {
-                          return Align(
-                            alignment: Alignment.center,
-                            child: Container(
-                              child: Text('No Post has been posted yet..'),
-                            ),
-                          );
+                          return ListView.builder(
+                              padding: EdgeInsets.only(
+                                  top: width * 0.2, bottom: width * 0.05),
+                              reverse: false,
+                              scrollDirection: Axis.vertical,
+                              itemCount: userPostIDList.length,
+                              itemBuilder: (context, index) {
+                                String senderID =
+                                    userPostIDList[index]['UserID'].toString();
+                                String postURL =
+                                    userPostIDList[index]['PostURL'].toString();
+                                String likeCount = userPostIDList[index]
+                                        ['LikeCount']
+                                    .toString();
+                                String commentCount = userPostIDList[index]
+                                        ['CommentCount']
+                                    .toString();
+                                return StreamBuilder(
+                                    stream: FirebaseFirestore.instance
+                                        .collection('Users')
+                                        .doc(senderID)
+                                        .snapshots(),
+                                    builder: (context, postDetailsSnapshot) {
+                                      if (postDetailsSnapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        // Show a loading indicator while post data is being fetched
+                                        return Container(
+                                          decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(8)),
+                                          padding: EdgeInsets.all(16),
+                                          child: Container(
+                                            width: width,
+                                            height: width,
+                                            decoration: BoxDecoration(
+                                                color: Colors.grey
+                                                    .withOpacity(0.5),
+                                                borderRadius:
+                                                    BorderRadius.circular(20)),
+                                            child: Align(
+                                              alignment: Alignment.topLeft,
+                                              child: Padding(
+                                                padding: EdgeInsets.only(
+                                                    left: 8, top: 8),
+                                                child: Row(
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 10,
+                                                              right: 5),
+                                                      child: Container(
+                                                        width: 40,
+                                                        height: 40,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          border: Border.all(
+                                                            width: 1,
+                                                            color: Colors.black,
+                                                          ),
+                                                        ),
+                                                        child:
+                                                            FadeShimmer.round(
+                                                          size: width * 0.18,
+                                                          fadeTheme:
+                                                              FadeTheme.dark,
+                                                          millisecondsDelay:
+                                                              300,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    FadeShimmer(
+                                                      height: 8,
+                                                      width: 50,
+                                                      radius: 4,
+                                                      millisecondsDelay: 300,
+                                                      fadeTheme: FadeTheme.dark,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        String senderName = postDetailsSnapshot
+                                            .data!
+                                            .get('ProfileName');
+                                        String senderDpUrl = postDetailsSnapshot
+                                            .data!
+                                            .get('DpURL');
+
+                                        return PhotoHolderComponent(
+                                          userName: senderName,
+                                          dpURL: senderDpUrl,
+                                          postURL: postURL,
+                                          likeCount: likeCount.toString(),
+                                          commentCount: commentCount.toString(),
+                                        );
+                                      }
+                                    });
+                              });
                         } else {
-                          return Align(
-                            alignment: Alignment.center,
-                            child: Container(
-                              child: Text('No Post has been posted yet..'),
-                            ),
+                          return Container(
+                            decoration: BoxDecoration(color: Colors.white),
                           );
                         }
                       }),
@@ -198,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 StreamBuilder(
                   stream: FirebaseFirestore.instance
                       .collection('Users')
-                      .doc(currentUser!.uid)
+                      .doc(widget.currentUserID)
                       .snapshots(),
                   builder: (context, userDataSnapshot) {
                     if (userDataSnapshot.connectionState ==
@@ -244,6 +253,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-  void pressedOnStoryFunction() {}
 }

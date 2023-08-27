@@ -94,8 +94,8 @@ class _OtherUserProfileScreen extends State<OtherUserProfileScreen> {
                                       if (requestID != null) {
                                         return Text(
                                           widget.currentUser == sender
-                                              ? 'Requst\nSent'
-                                              : 'Requst\nRecieved',
+                                              ? 'Request\nSent'
+                                              : 'Request\nRecieved',
                                           style: TextStyle(
                                               fontSize: 17,
                                               fontWeight: FontWeight.bold,
@@ -395,7 +395,7 @@ class _OtherUserProfileScreen extends State<OtherUserProfileScreen> {
     DateTime currentStamp = DateTime.now();
 
     String formattedTime = DateFormat('h:mm:ss a').format(currentStamp);
-    String time = DateFormat('h:mm a').format(currentStamp);
+    // String time = DateFormat('h:mm a').format(currentStamp);
     String date = DateFormat.yMd().format(currentStamp);
 
     try {

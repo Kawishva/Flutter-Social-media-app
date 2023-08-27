@@ -1,19 +1,20 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:intl/intl.dart';
 import '../components/flash_messages.dart';
 import '../components/navigation_bar.dart';
 import '../components/show_dialog_request.dart';
 
+// ignore: must_be_immutable
 class StoryPostScreen extends StatefulWidget {
-  const StoryPostScreen({super.key});
+  String currentUserId;
+
+  StoryPostScreen({super.key, required this.currentUserId});
 
   @override
   State<StoryPostScreen> createState() => _StoryPostScreenState();
@@ -305,7 +306,7 @@ class _StoryPostScreenState extends State<StoryPostScreen> {
                 child: IconButton(
                   //firebase upload implementation here
                   onPressed: () {
-                    postUploadFunction();
+                    uploadFunction();
                   },
                   icon: Icon(
                     Icons.send_outlined,
@@ -557,233 +558,156 @@ class _StoryPostScreenState extends State<StoryPostScreen> {
     }
   }
 
-  Future<void> postUploadFunction() async {
-    String? userName;
-    User? currentUser = FirebaseAuth.instance
-        .currentUser; // Get the currently signed-in user from Firebase Authentication
-    SharedPreferences preferense = await SharedPreferences.getInstance();
+  Future<void> uploadFunction() async {
+    DateTime currentStamp = DateTime.now();
 
-    String? postImageId, storyId;
-    int postIdNumber, storyIdNumber;
+    String formattedTime = DateFormat('h:mm:ss a').format(currentStamp);
+    String time = DateFormat('h:mm a').format(currentStamp);
+    String year = DateFormat.y().format(currentStamp);
+    String month = DateFormat.M().format(currentStamp);
+    String date = DateFormat.d().format(currentStamp);
 
-    try {
-      await FirebaseFirestore.instance
-          .collection('Users')
-          .doc(currentUser!.uid)
-          .get()
-          .then((snapshot) async {
-        if (snapshot.exists) {
-          setState(() {
-            userName = snapshot.data()![
-                'ProfileName']; //retrieving username from firebase firestore
+    //when user sharing a story
+    if (storyIsOnState == true) {
+      // user sharing text story
+      if (userText.text.isNotEmpty && storyPostImage == null) {
+        setState(() {
+          pushbuttonState = true;
+        });
+
+        try {
+          //making user stories details collection
+          await FirebaseFirestore.instance
+              .collection('AllUserStoriesDetails')
+              .doc(widget.currentUserId + '$date.$month.$year||$formattedTime')
+              .set({
+            //saving posts detatils
+            'UserID': widget.currentUserId,
+            'UploadedTime': formattedTime,
+            'Time': time,
+            'TextStory': userText.text,
           });
-
-          //when user sharing a story
-          if (storyIsOnState == true) {
-            // user sharing text story
-            if (userText.text.isNotEmpty && storyPostImage == null) {
-              setState(() {
-                pushbuttonState = true;
-                if (preferense.getInt('storyId') == null) {
-                  storyIdNumber = 0;
-                  storyId = currentUser.uid.toString() +
-                      storyIdNumber.toString(); //creating a storyId
-                  preferense.setInt('storyId',
-                      storyIdNumber); //saving new storyIdnumber in sharede pref
-                } else {
-                  storyIdNumber = preferense.getInt('storyId')!;
-                  storyIdNumber++; //increasing numer by 1
-                  storyId = currentUser.uid.toString() +
-                      storyIdNumber.toString(); //creating a storyId
-                  preferense.setInt('storyId',
-                      storyIdNumber); //saving new storyIdnumber in sharede pref
-                }
-              });
-              //save details in firestore
-              await FirebaseFirestore.instance
-                  .collection('Users')
-                  .doc(currentUser.uid)
-                  .update({
-                'StoryIDs': FieldValue.arrayUnion([
-                  storyId
-                ]) //saving story Ids in real time db:firestore to an array
-              });
-
-              //save details in firestore
-              await FirebaseFirestore.instance
-                  .collection('AllUserStories')
-                  .doc('UserStoryIds')
-                  .update({
-                'StoryIDs': FieldValue.arrayUnion([
-                  storyId
-                ]) //saving story Ids in real time db:firestore to an array
-              });
-
-              //making user stories details collection
-              await FirebaseFirestore.instance
-                  .collection('AllUserStoriesDetails')
-                  .doc(storyId)
-                  .set({
-                //saving posts detatils
-                'UserID': currentUser.uid,
-
-                'TextStory': userText.text,
-              });
-            } // user sharing image story
-            else if (userText.text.isEmpty && storyPostImage != null) {
-              setState(() {
-                pushbuttonState = true;
-                if (preferense.getInt('storyId') == null) {
-                  storyIdNumber = 0;
-                  storyId = currentUser.uid.toString() +
-                      storyIdNumber.toString(); //creating a storyId
-                  preferense.setInt('storyId',
-                      storyIdNumber); //saving new storyIdnumber in sharede pref
-                } else {
-                  storyIdNumber = preferense.getInt('storyId')!;
-                  storyIdNumber++; //increasing numer by 1
-                  storyId = currentUser.uid.toString() +
-                      storyIdNumber.toString(); //creating a storyId
-                  preferense.setInt('storyId',
-                      storyIdNumber); //saving new storyIdnumber in sharede pref
-                }
-              });
-              //save details in firestore
-              await FirebaseFirestore.instance
-                  .collection('Users')
-                  .doc(currentUser.uid)
-                  .update({
-                'StoryIDs': FieldValue.arrayUnion([
-                  storyId
-                ]) //saving story Ids in real time db:firestore to an array
-              });
-
-              //save details in firestore
-              await FirebaseFirestore.instance
-                  .collection('AllUserStories')
-                  .doc('UserStoryIds')
-                  .update({
-                'StoryIDs': FieldValue.arrayUnion([
-                  storyId
-                ]) //saving story Ids in real time db:firestore to an array
-              });
-
-              final postRef = await FirebaseStorage.instance
-                  .ref()
-                  .child('AllUsersPostImages')
-                  .child(userName! + '|' + DateTime.now().toString() + '.jpg');
-
-              // Upload the post file using putFile()
-              await postRef.putFile(storyPostImage!);
-
-              //download post usrl in storage
-              String storyimageURL = await postRef.getDownloadURL();
-
-              //making user stories details collection
-              await FirebaseFirestore.instance
-                  .collection('AllUserStoriesDetails')
-                  .doc(storyId)
-                  .set({
-                //saving Image Story detatils
-                'UserID': currentUser.uid,
-                'ImageStoryURL': storyimageURL,
-                'StoryDescription':
-                    imageDescription == null ? '' : imageDescription
-              });
-            }
-          } //when user sharing a post
-          else if (storyIsOnState == false && storyPostImage != null) {
-            setState(() {
-              pushbuttonState = true;
-              if (preferense.getInt('PostIdNumber') == null) {
-                postIdNumber = 0;
-                postImageId = currentUser.uid.toString() +
-                    postIdNumber.toString(); //creating a postId
-                preferense.setInt('PostIdNumber',
-                    postIdNumber); //saving new postIdnumber in sharede pref
-              } else {
-                postIdNumber = preferense.getInt('PostIdNumber')!;
-                postIdNumber++; //increasing numer by 1
-                postImageId = currentUser.uid.toString() +
-                    postIdNumber.toString(); //creating a postId
-                preferense.setInt('PostIdNumber',
-                    postIdNumber); //saving new postIdnumber in sharede pref
-              }
-            });
-            final postRef = await FirebaseStorage.instance
-                .ref()
-                .child('AllUsersPostImages')
-                .child(userName! + '|' + DateTime.now().toString() + '.jpg');
-
-            // Upload the post file using putFile()
-            await postRef.putFile(storyPostImage!);
-
-            //download post usrl in storage
-            String postimageURL = await postRef.getDownloadURL();
-
-            //save details in firestore
-            await FirebaseFirestore.instance
-                .collection('Users')
-                .doc(currentUser.uid)
-                .update({
-              'PostIDs': FieldValue.arrayUnion([
-                postImageId
-              ]) //saving posts Ids in real time db:firestore to an array
-            });
-
-            //making allposts idCollection
-            await FirebaseFirestore.instance
-                .collection('AllUserPosts')
-                .doc('UserPostIds')
-                .update({
-              'PostIDs': FieldValue.arrayUnion([
-                postImageId
-              ]) //saving posts Ids in real time db:firestore to an array
-            });
-
-            //making user posts details collection
-            await FirebaseFirestore.instance
-                .collection('AllUserPostsDetails')
-                .doc(postImageId)
-                .set({
-              //saving posts detatils
-              'UserID': currentUser.uid,
-              'PostURL': postimageURL,
-              'PostDescription':
-                  imageDescription == null ? '' : imageDescription,
-              'LikeCount': 0,
-              'CommentCount': 0,
-              'CommentedUserName': FieldValue.arrayUnion([]),
-              'Comment': FieldValue.arrayUnion([]),
-            });
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'network-request-failed') {
+            const FlashMessages(
+              imagePath:
+                  'lib/image_assests/icons/flash_messege_icons/request_error_icon.png',
+              text1: 'Oops!',
+              text2: 'Connection Error..',
+              imageColor: Color(0xFF650903),
+              backGroundColor: Colors.red,
+              fontColor: Color(0xFF650903),
+              imageSize: 10,
+              duration: Duration(seconds: 5),
+            ).flashMessageFunction(context);
           }
         }
-      });
-      //after successfull uploading it redirects to home screen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => NavigationBarComponent(
-                  currentStateChanger: 0,
-                )),
-      );
-    } on FirebaseAuthException catch (e) {
-      setState(() {
-        pushbuttonState = false;
-      });
-      if (e.code == 'network-request-failed') {
-        const FlashMessages(
-          imagePath:
-              'lib/image_assests/icons/flash_messege_icons/request_error_icon.png',
-          text1: 'Oops!',
-          text2: 'Connection Error..',
-          imageColor: Color(0xFF650903),
-          backGroundColor: Colors.red,
-          fontColor: Color(0xFF650903),
-          imageSize: 10,
-          duration: Duration(seconds: 5),
-        ).flashMessageFunction(context);
+      }
+      // user sharing image story
+      else if (userText.text.isEmpty && storyPostImage != null) {
+        setState(() {
+          pushbuttonState = true;
+        });
+
+        final postRef = await FirebaseStorage.instance
+            .ref()
+            .child('AllUsersPostImages')
+            .child(widget.currentUserId +
+                '$date.$month.$year||$formattedTime.jpg');
+
+        // Upload the post file using putFile()
+        await postRef.putFile(storyPostImage!);
+
+        //download post usrl in storage
+        String storyimageURL = await postRef.getDownloadURL();
+
+        try {
+          //making user stories details collection
+          await FirebaseFirestore.instance
+              .collection('AllUserStoriesDetails')
+              .doc(widget.currentUserId + '$date.$month.$year||$formattedTime')
+              .set({
+            //saving Image Story detatils
+            'UserID': widget.currentUserId,
+            'ImageStoryURL': storyimageURL,
+            'UploadedTime': formattedTime,
+            'Time': time,
+            'StoryDescription': imageDescription == null ? '' : imageDescription
+          });
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'network-request-failed') {
+            const FlashMessages(
+              imagePath:
+                  'lib/image_assests/icons/flash_messege_icons/request_error_icon.png',
+              text1: 'Oops!',
+              text2: 'Connection Error..',
+              imageColor: Color(0xFF650903),
+              backGroundColor: Colors.red,
+              fontColor: Color(0xFF650903),
+              imageSize: 10,
+              duration: Duration(seconds: 5),
+            ).flashMessageFunction(context);
+          }
+        }
       }
     }
+
+    //when user sharing a post
+    else if (storyIsOnState == false && storyPostImage != null) {
+      setState(() {
+        pushbuttonState = true;
+      });
+      final postRef = await FirebaseStorage.instance
+          .ref()
+          .child('AllUsersPostImages')
+          .child(
+              widget.currentUserId + '$date.$month.$year||$formattedTime.jpg');
+
+      // Upload the post file using putFile()
+      await postRef.putFile(storyPostImage!);
+
+      //download post usrl in storage
+      String postimageURL = await postRef.getDownloadURL();
+
+      try {
+        //making user posts details collection
+        await FirebaseFirestore.instance
+            .collection('AllUserPostsDetails')
+            .doc(widget.currentUserId + '$date.$month.$year||$formattedTime')
+            .set({
+          //saving posts detatils
+          'UserID': widget.currentUserId,
+          'PostURL': postimageURL,
+          'UploadedTime': formattedTime,
+          'PostDescription': imageDescription == null ? '' : imageDescription,
+          'LikeCount': 0,
+          'CommentCount': 0,
+          'CommentedUserName': FieldValue.arrayUnion([]),
+          'Comment': FieldValue.arrayUnion([]),
+        });
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'network-request-failed') {
+          const FlashMessages(
+            imagePath:
+                'lib/image_assests/icons/flash_messege_icons/request_error_icon.png',
+            text1: 'Oops!',
+            text2: 'Connection Error..',
+            imageColor: Color(0xFF650903),
+            backGroundColor: Colors.red,
+            fontColor: Color(0xFF650903),
+            imageSize: 10,
+            duration: Duration(seconds: 5),
+          ).flashMessageFunction(context);
+        }
+      }
+    }
+    //after successfull uploading it redirects to home screen
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+          builder: (context) => NavigationBarComponent(
+                currentStateChanger: 0,
+              )),
+    );
   }
 }

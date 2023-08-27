@@ -100,50 +100,56 @@ class _SearchScreanState extends State<SearchScrean> {
                     builder: (context, userDataSnapshot) {
                       if (userDataSnapshot.connectionState ==
                           ConnectionState.waiting) {
-                        return Container(
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8)),
-                          padding: EdgeInsets.all(16),
-                          child: Container(
-                            width: width,
-                            height: width * 0.2,
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20)),
-                            child: Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 10, right: 20),
-                                  child: Container(
-                                    width: width * 0.18,
-                                    height: width * 0.18,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        width: 1,
-                                        color: Colors.black,
+                        return ListView.builder(
+                            padding: EdgeInsets.only(top: 5, bottom: 5),
+                            scrollDirection: Axis.vertical,
+                            itemCount: 4,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8)),
+                                padding: EdgeInsets.all(16),
+                                child: Container(
+                                  width: width,
+                                  height: width * 0.2,
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(20)),
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 10, right: 20),
+                                        child: Container(
+                                          width: width * 0.18,
+                                          height: width * 0.18,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              width: 1,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          child: FadeShimmer.round(
+                                            size: width * 0.18,
+                                            fadeTheme: FadeTheme.dark,
+                                            millisecondsDelay: 300,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                    child: FadeShimmer.round(
-                                      size: width * 0.18,
-                                      fadeTheme: FadeTheme.dark,
-                                      millisecondsDelay: 300,
-                                    ),
+                                      FadeShimmer(
+                                        height: 8,
+                                        width: 150,
+                                        radius: 4,
+                                        millisecondsDelay: 300,
+                                        fadeTheme: FadeTheme.dark,
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                FadeShimmer(
-                                  height: 8,
-                                  width: 150,
-                                  radius: 4,
-                                  millisecondsDelay: 300,
-                                  fadeTheme: FadeTheme.dark,
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
+                              );
+                            });
                       } else if (userDataSnapshot.data!.docs.isNotEmpty) {
                         List<Map<String, dynamic>> otherUsersIDList = [];
 

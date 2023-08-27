@@ -3,7 +3,6 @@ import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import '../components/flash_messages.dart';
 
 // ignore: must_be_immutable
@@ -22,7 +21,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       backgroundColor: Colors.white,
       body: SafeArea(child: LayoutBuilder(builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final height = constraints.maxHeight;
+        // final height = constraints.maxHeight;
 
         return StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance

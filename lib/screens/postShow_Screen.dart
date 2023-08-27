@@ -9,10 +9,9 @@ import '../components/flash_messages.dart';
 
 // ignore: must_be_immutable
 class PostShowScreen extends StatefulWidget {
-  String? postId, currentUserId;
+  String? postId;
 
-  PostShowScreen(
-      {super.key, required this.postId, required this.currentUserId});
+  PostShowScreen({super.key, required this.postId});
 
   @override
   State<PostShowScreen> createState() => _PostShowScreenState();
@@ -140,7 +139,19 @@ class _PostShowScreenState extends State<PostShowScreen> {
             pushbuttonState == true;
           });
 
-          try {
+          String imageUrl = userPostUrl!;
+          String bucketName = 'AllUsersPostImages';
+
+          // Extract the path from the URL
+          int pathStartIndex = imageUrl.indexOf(bucketName) +
+              bucketName.length +
+              3; // +3 for "/o/"
+          int pathEndIndex = imageUrl.indexOf("?alt=media");
+          String filePath = imageUrl.substring(pathStartIndex, pathEndIndex);
+
+          print("File path in Firebase Storage: $filePath");
+
+          /*   try {
             FirebaseFirestore currentPostSnapshot =
                 await FirebaseFirestore.instance;
 
@@ -150,21 +161,7 @@ class _PostShowScreenState extends State<PostShowScreen> {
                 .doc(widget.postId)
                 .delete();
 
-            //delete  post from all user's post collection
-            currentPostSnapshot
-                .collection('Users')
-                .doc(widget.currentUserId)
-                .update({
-              'PostIDs': FieldValue.arrayRemove([widget.postId]),
-            });
-
-            //delete  postid from all  postId collection
-            currentPostSnapshot
-                .collection('AllUserPosts')
-                .doc('UserPostIds')
-                .update({
-              'PostIDs': FieldValue.arrayRemove([widget.postId]),
-            });
+            
 
             //after successfull uploading it redirects to home screen
             Navigator.pushReplacement(
@@ -188,7 +185,7 @@ class _PostShowScreenState extends State<PostShowScreen> {
                 duration: Duration(seconds: 5),
               ).flashMessageFunction(context);
             }
-          }
+          }*/
         },
         style: ElevatedButton.styleFrom(
           fixedSize: Size(width, 50),

@@ -45,7 +45,9 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
               IndexedStack(
                 index: currentIndex,
                 children: [
-                  HomeScreen(), //0
+                  HomeScreen(
+                    currentUserID: currentUser!.uid,
+                  ), //0
                   SearchScrean(
                     currenUserId: currentUser!.uid,
                   ), //1
@@ -55,7 +57,7 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                   ChatListsScreen(
                     currentUser: currentUser!.uid,
                   ), //3
-                  UserProfileScreen(currentUser: currentUser!.uid), //4
+                  UserProfileScreen(currentUserID: currentUser!.uid), //4
                 ],
               ),
               Align(
@@ -126,7 +128,9 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const StoryPostScreen()),
+                                builder: (context) => StoryPostScreen(
+                                      currentUserId: currentUser!.uid,
+                                    )),
                           );
                         },
                         child: Icon(

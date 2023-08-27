@@ -5,8 +5,8 @@ import 'package:login_project/screens/postShow_Screen.dart';
 
 // ignore: must_be_immutable
 class UserProfileScreen extends StatefulWidget {
-  String currentUser;
-  UserProfileScreen({super.key, required this.currentUser});
+  String currentUserID;
+  UserProfileScreen({super.key, required this.currentUserID});
 
   @override
   State<UserProfileScreen> createState() => _UserProfileScreenState();
@@ -34,115 +34,98 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           final height = constraints.maxHeight;
           return Stack(
             children: [
-              StreamBuilder<DocumentSnapshot>(
-                // Stream for user's post data changes
-                stream: FirebaseFirestore.instance
-                    .collection('Users')
-                    .doc(
-                        widget.currentUser) // Replace with the currentUser!.uid
-                    .snapshots(),
-                builder: (context, postSnapshot) {
-                  // Check if the document exists and contains data
-                  if (postSnapshot.hasData && postSnapshot.data!.exists) {
-                    List<String> postImageIds =
-                        List<String>.from(postSnapshot.data!.get('PostIDs'))
-                            .reversed
-                            .toList();
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+                width: width,
+                height: height,
+                decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 225, 225, 225)
+                        .withOpacity(0.5)),
+                child: StreamBuilder<QuerySnapshot>(
+                  // Stream for user's post data changes
+                  stream: FirebaseFirestore.instance
+                      .collection('AllUserPostsDetails')
+                      .orderBy('UploadedTime', descending: true)
+                      .snapshots(),
+                  builder: (context, postSnapshot) {
+                    if (postSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return Container();
+                    } else if (postSnapshot.data!.docs.isNotEmpty) {
+                      List<Map<String, dynamic>> userPostList = [];
 
-                    // Return a GridView once the data is available
+                      List<String> userPostIDList = [];
 
-                    return Container(
-                      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-                      width: width,
-                      height: height,
-                      child: GridView.builder(
-                        primary: false,
-                        padding: EdgeInsets.only(top: width * 0.28),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount:
-                              3, // Adjust the number of columns as needed
-                          crossAxisSpacing: 2,
-                          mainAxisSpacing: 2,
-                        ),
-                        itemCount: postImageIds.length,
-                        itemBuilder: (context, index) {
-                          return StreamBuilder(
-                            stream: FirebaseFirestore.instance
-                                .collection('AllUserPostsDetails')
-                                .doc(postImageIds[index])
-                                .snapshots(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                // Show a loading indicator while post data is being fetched
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              } else if (snapshot.hasData &&
-                                  snapshot.data!.exists) {
-                                String postURL = snapshot.data!.get('PostURL');
+                      for (QueryDocumentSnapshot doc
+                          in postSnapshot.data!.docs) {
+                        String userID = doc.get('UserID').toString();
 
-                                /* int likeCount =
-                                      snapshot.data!.get('LikeCount');
+                        String postID = doc.id;
 
-                                  int commentCount =
-                                      snapshot.data!.get('CommentCount');*/
+                        if (widget.currentUserID == userID) {
+                          Map<String, dynamic> userData =
+                              doc.data() as Map<String, dynamic>;
+                          userPostList
+                              .add(userData); // Append user data to the list
 
-                                return GestureDetector(
-                                  onTap: () {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => PostShowScreen(
-                                                postId: postImageIds[index],
-                                                currentUserId:
-                                                    widget.currentUser,
-                                              )),
-                                    );
-                                  },
-                                  child: Container(
-                                    width: 10,
-                                    height: 10,
-                                    decoration: BoxDecoration(),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(5),
-                                      child: Image.network(
-                                        postURL,
-                                        fit: BoxFit.cover,
-                                        filterQuality: FilterQuality.high,
-                                      ),
-                                    ),
-                                  ),
+                          userPostIDList.add(postID);
+                        }
+                      }
+
+                      return GridView.builder(
+                          primary: false,
+                          padding: EdgeInsets.only(top: width * 0.28),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount:
+                                3, // Adjust the number of columns as needed
+                            crossAxisSpacing: 2,
+                            mainAxisSpacing: 2,
+                          ),
+                          itemCount: userPostList.length,
+                          itemBuilder: (context, index) {
+                            String postURL =
+                                userPostList[index]['PostURL'].toString();
+
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => PostShowScreen(
+                                            postId: userPostIDList[index],
+                                          )),
                                 );
-                              } else {
-                                // Handle case when post data doesn't exist
-                                return Center(
-                                    child: Text(
-                                  'Post data not found',
-                                  style: TextStyle(color: Colors.black),
-                                ));
-                              }
-                            },
-                          );
-                        },
-                      ),
-                    );
-                  } else {
-                    // Handle case when document doesn't exist or has no data
-                    return Align(
-                      alignment: Alignment.bottomRight,
-                      child: Container(
-                        child: Text('No Post Yet..'),
-                      ),
-                    );
-                  }
-                },
+                              },
+                              child: Container(
+                                width: 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                        width: 2, color: Colors.white)),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(5),
+                                  child: Image.network(
+                                    postURL,
+                                    fit: BoxFit.cover,
+                                    filterQuality: FilterQuality.high,
+                                  ),
+                                ),
+                              ),
+                            );
+                          });
+                    } else {
+                      return Container();
+                    }
+                  },
+                ),
               ),
               StreamBuilder(
                   // Stream for user data changes
                   stream: FirebaseFirestore.instance
                       .collection('Users')
                       .doc(widget
-                          .currentUser) // Replace with the  currentUser!.uid
+                          .currentUserID) // Replace with the  currentUser!.uid
                       .snapshots(),
                   builder: (context, userDataSnapshot) {
                     if (userDataSnapshot.connectionState ==
