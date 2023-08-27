@@ -265,7 +265,6 @@ class _UserNamePictureScreenState extends State<UserNamePictureScreen> {
               'DpURL': '',
               'PostIDs': FieldValue.arrayUnion([]),
               'StoryIDs': FieldValue.arrayUnion([]),
-              'requestId': FieldValue.arrayUnion([]),
               'Description': description.text.isNotEmpty ? description.text : ''
             });
 
@@ -349,15 +348,7 @@ class _UserNamePictureScreenState extends State<UserNamePictureScreen> {
               'DpURL': imageURL, //saving image usrl in real time db:firestore
               'PostIDs': FieldValue.arrayUnion([]),
               'StoryIDs': FieldValue.arrayUnion([]),
-              'requestId': FieldValue.arrayUnion([]),
               'Description': description.text.isNotEmpty ? description.text : ''
-            });
-
-            await FirebaseFirestore.instance
-                .collection('AllUserIDs')
-                .doc('UserIDs')
-                .update({
-              'UserIDs': FieldValue.arrayUnion([currentUser.uid]),
             });
 
             //directing to navigation bar component

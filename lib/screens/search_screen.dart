@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fade_shimmer/fade_shimmer.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import 'otherUserProf_Screen.dart';
 
+// ignore: must_be_immutable
 class SearchScrean extends StatefulWidget {
-  const SearchScrean({super.key});
+  String currenUserId;
+
+  SearchScrean({super.key, required this.currenUserId});
 
   @override
   State<SearchScrean> createState() => _SearchScreanState();
@@ -14,9 +15,6 @@ class SearchScrean extends StatefulWidget {
 
 class _SearchScreanState extends State<SearchScrean> {
   final searchText = TextEditingController();
-  List<String> userIdsList = [];
-
-  User? currentUser = FirebaseAuth.instance.currentUser;
 
   void initState() {
     super.initState();
@@ -89,184 +87,171 @@ class _SearchScreanState extends State<SearchScrean> {
             ),
             Expanded(
               child: Container(
-                  width: width,
-                  decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.5),
-                      borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(30),
-                          topLeft: Radius.circular(30))),
-                  child: StreamBuilder(
+                width: width,
+                decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.5),
+                    borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(30),
+                        topLeft: Radius.circular(30))),
+                child: StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
-                        .collection('AllUserIDs')
-                        .doc('UserIDs')
+                        .collection('Users')
                         .snapshots(),
-                    builder: (context, userIDsnapshot) {
-                      userIdsList.clear();
-                      if (userIDsnapshot.connectionState ==
+                    builder: (context, userDataSnapshot) {
+                      if (userDataSnapshot.connectionState ==
                           ConnectionState.waiting) {
-                        // Show a loading indicator while data is being fetched
-                        return Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.black,
+                        return Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8)),
+                          padding: EdgeInsets.all(16),
+                          child: Container(
+                            width: width,
+                            height: width * 0.2,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20)),
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 10, right: 20),
+                                  child: Container(
+                                    width: width * 0.18,
+                                    height: width * 0.18,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        width: 1,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    child: FadeShimmer.round(
+                                      size: width * 0.18,
+                                      fadeTheme: FadeTheme.dark,
+                                      millisecondsDelay: 300,
+                                    ),
+                                  ),
+                                ),
+                                FadeShimmer(
+                                  height: 8,
+                                  width: 150,
+                                  radius: 4,
+                                  millisecondsDelay: 300,
+                                  fadeTheme: FadeTheme.dark,
+                                ),
+                              ],
+                            ),
                           ),
                         );
-                      } else {
-                        List<String> userIdsList = List<String>.from(
-                          userIDsnapshot.data!.get('UserIDs') ?? [],
-                        ).reversed.toList();
+                      } else if (userDataSnapshot.data!.docs.isNotEmpty) {
+                        List<Map<String, dynamic>> otherUsersIDList = [];
 
-                        if (userIdsList.isNotEmpty) {
+                        List<String> otherUserIdList = [];
+
+                        for (QueryDocumentSnapshot doc
+                            in userDataSnapshot.data!.docs) {
+                          String otherUserID = doc.id;
+
+                          if (otherUserID != widget.currenUserId) {
+                            Map<String, dynamic> userData =
+                                doc.data() as Map<String, dynamic>;
+                            otherUsersIDList
+                                .add(userData); // Append user data to the list
+
+                            otherUserIdList.add(otherUserID);
+                          }
+                        }
+
+                        if (otherUsersIDList.isNotEmpty) {
                           return ListView.builder(
-                            padding: EdgeInsets.only(top: 5, bottom: 5),
-                            scrollDirection: Axis.vertical,
-                            itemCount: userIdsList.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return StreamBuilder(
-                                stream: FirebaseFirestore.instance
-                                    .collection('Users')
-                                    .doc(userIdsList[index])
-                                    .snapshots(),
-                                builder: (context, otherUserSnapshot) {
-                                  if (otherUserSnapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return Container(
+                              padding: EdgeInsets.only(top: 5, bottom: 5),
+                              scrollDirection: Axis.vertical,
+                              itemCount: otherUsersIDList.length,
+                              itemBuilder: (context, index) {
+                                String userName = otherUsersIDList[index]
+                                        ['ProfileName']
+                                    .toString();
+
+                                String userDpURL =
+                                    otherUsersIDList[index]['DpURL'].toString();
+
+                                return Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 2, horizontal: 10),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                OtherUserProfileScreen(
+                                                  currentUser:
+                                                      widget.currenUserId,
+                                                  otherUserId:
+                                                      otherUserIdList[index],
+                                                )),
+                                      );
+                                    },
+                                    child: Container(
+                                      width: width,
+                                      height: width * 0.2,
                                       decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius:
-                                              BorderRadius.circular(8)),
-                                      padding: EdgeInsets.all(16),
-                                      child: Container(
-                                        width: width,
-                                        height: width * 0.2,
-                                        decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(20)),
-                                        child: Row(
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 10, right: 20),
-                                              child: Container(
-                                                width: width * 0.18,
-                                                height: width * 0.18,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                    width: 1,
-                                                    color: Colors.black,
-                                                  ),
-                                                ),
-                                                child: FadeShimmer.round(
-                                                  size: width * 0.18,
-                                                  fadeTheme: FadeTheme.dark,
-                                                  millisecondsDelay: 300,
+                                              BorderRadius.circular(20)),
+                                      child: Row(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 10, right: 20),
+                                            child: Container(
+                                              width: width * 0.18,
+                                              height: width * 0.18,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  width: 1,
+                                                  color: Colors.black,
                                                 ),
                                               ),
-                                            ),
-                                            FadeShimmer(
-                                              height: 8,
-                                              width: 150,
-                                              radius: 4,
-                                              millisecondsDelay: 300,
-                                              fadeTheme: FadeTheme.dark,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  } else if (userIdsList[index] !=
-                                      currentUser!.uid) {
-                                    String userName = otherUserSnapshot.data!
-                                        .get('ProfileName');
-
-                                    String userDpUrl =
-                                        otherUserSnapshot.data!.get('DpURL');
-
-                                    return Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 2, horizontal: 10),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    OtherUserProfileScreen(
-                                                      currentUser:
-                                                          currentUser!.uid,
-                                                      otherUserId:
-                                                          userIdsList[index],
-                                                    )),
-                                          );
-                                        },
-                                        child: Container(
-                                          width: width,
-                                          height: width * 0.2,
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(20)),
-                                          child: Row(
-                                            children: [
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 10, right: 20),
-                                                child: Container(
-                                                  width: width * 0.18,
-                                                  height: width * 0.18,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    border: Border.all(
-                                                      width: 1,
-                                                      color: Colors.black,
-                                                    ),
-                                                  ),
-                                                  child: CircleAvatar(
-                                                    backgroundColor:
-                                                        Colors.white,
-                                                    backgroundImage: userDpUrl
-                                                            .isEmpty
-                                                        ? AssetImage(
-                                                            'lib/image_assests/icons/user_dp2.png')
-                                                        : Image.network(
-                                                                userDpUrl)
-                                                            .image,
-                                                  ),
-                                                ),
+                                              child: CircleAvatar(
+                                                backgroundColor: Colors.white,
+                                                backgroundImage: userDpURL
+                                                        .isEmpty
+                                                    ? AssetImage(
+                                                        'lib/image_assests/icons/user_dp2.png')
+                                                    : Image.network(userDpURL)
+                                                        .image,
                                               ),
-                                              Text(
-                                                userName,
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 15,
-                                                    fontStyle: FontStyle.italic,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              )
-                                            ],
+                                            ),
                                           ),
-                                        ),
+                                          Text(
+                                            userName,
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 15,
+                                                fontStyle: FontStyle.italic,
+                                                fontWeight: FontWeight.bold),
+                                          )
+                                        ],
                                       ),
-                                    );
-                                  } else {
-                                    return Container(
-                                      width: 0,
-                                      height: 0,
-                                    );
-                                  }
-                                },
-                              );
-                            },
-                          );
+                                    ),
+                                  ),
+                                );
+                              });
                         } else {
                           return Center(
                             child: Text('No user IDs available.'),
                           );
                         }
+                      } else {
+                        return Center(
+                          child: Text('No user IDs available.'),
+                        );
                       }
-                    },
-                  )),
+                    }),
+              ),
             ),
           ],
         );

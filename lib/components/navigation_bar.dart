@@ -46,9 +46,11 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                 index: currentIndex,
                 children: [
                   HomeScreen(), //0
-                  SearchScrean(), //1
+                  SearchScrean(
+                    currenUserId: currentUser!.uid,
+                  ), //1
                   NotificationScreen(
-                    currentUser: currentUser!.uid,
+                    currentUserID: currentUser!.uid,
                   ), //2
                   ChatListsScreen(
                     currentUser: currentUser!.uid,

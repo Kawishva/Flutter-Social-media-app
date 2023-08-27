@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:login_project/components/navigation_bar.dart';
+
+import '../components/flash_messages.dart';
 
 // ignore: must_be_immutable
 class OtherUserProfileScreen extends StatefulWidget {
@@ -45,7 +49,7 @@ class _OtherUserProfileScreen extends State<OtherUserProfileScreen> {
         body: SafeArea(
           child: LayoutBuilder(builder: (context, constraints) {
             final width = constraints.maxWidth;
-            // final height = constraints.maxHeight;
+
             return Column(
               children: [
                 Row(
@@ -57,23 +61,41 @@ class _OtherUserProfileScreen extends State<OtherUserProfileScreen> {
                           child: Padding(
                               padding: EdgeInsets.only(
                                   left: width * 0.02, top: width * 0.02),
-                              child: StreamBuilder(
+                              child: StreamBuilder<QuerySnapshot>(
                                   stream: FirebaseFirestore.instance
                                       .collection('UserRequests')
-                                      .doc(widget.currentUser +
-                                          widget
-                                              .otherUserId) // Replace with the  currentUser!.uid
                                       .snapshots(),
-                                  builder: (context, requstSnapshot1) {
-                                    if (requstSnapshot1.hasData &&
-                                        requstSnapshot1.data!.exists) {
-                                      String state =
-                                          requstSnapshot1.data!.get('State');
+                                  builder: (context, userRequsetSnapshot) {
+                                    if (userRequsetSnapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return Container();
+                                    } else if (userRequsetSnapshot
+                                        .data!.docs.isNotEmpty) {
+                                      Map<String, dynamic>? requestID;
 
-                                      if (state == 'Pending..' ||
-                                          state == 'Accepted') {
+                                      for (QueryDocumentSnapshot doc
+                                          in userRequsetSnapshot.data!.docs) {
+                                        if (widget.currentUser +
+                                                    widget.otherUserId ==
+                                                doc.id ||
+                                            widget.otherUserId +
+                                                    widget.currentUser ==
+                                                doc.id) {
+                                          Map<String, dynamic> userData = doc
+                                              .data() as Map<String, dynamic>;
+                                          requestID = userData;
+                                        }
+                                      }
+
+                                      String sender = requestID != null
+                                          ? requestID['Sender'].toString()
+                                          : '';
+
+                                      if (requestID != null) {
                                         return Text(
-                                          state,
+                                          widget.currentUser == sender
+                                              ? 'Requst\nSent'
+                                              : 'Requst\nRecieved',
                                           style: TextStyle(
                                               fontSize: 17,
                                               fontWeight: FontWeight.bold,
@@ -94,7 +116,7 @@ class _OtherUserProfileScreen extends State<OtherUserProfileScreen> {
                                               requestFunction();
                                             },
                                             child: Text(
-                                              'Request.',
+                                              'Request',
                                               textAlign: TextAlign.center,
                                               style: TextStyle(
                                                 fontSize: 13,
@@ -105,82 +127,29 @@ class _OtherUserProfileScreen extends State<OtherUserProfileScreen> {
                                         );
                                       }
                                     } else {
-                                      return StreamBuilder(
-                                          stream: FirebaseFirestore.instance
-                                              .collection('UserRequests')
-                                              .doc(widget.otherUserId +
-                                                  widget
-                                                      .currentUser) // Replace with the  currentUser!.uid
-                                              .snapshots(),
-                                          builder: (context, requstSnapshot2) {
-                                            if (requstSnapshot2.hasData &&
-                                                requstSnapshot2.data!.exists) {
-                                              String state = requstSnapshot2
-                                                  .data!
-                                                  .get('State');
-                                              if (state == 'Pending..' ||
-                                                  state == 'Accepted') {
-                                                return Text(
-                                                  state,
-                                                  style: TextStyle(
-                                                      fontSize: 17,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.amber),
-                                                );
-                                              } else {
-                                                return Container(
-                                                  alignment: Alignment.center,
-                                                  width: 70,
-                                                  height: 50,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    color: Colors.black,
-                                                  ),
-                                                  child: TextButton(
-                                                    onPressed: () {
-                                                      requestFunction();
-                                                    },
-                                                    child: Text(
-                                                      'Request.',
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: TextStyle(
-                                                        fontSize: 13,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              }
-                                            } else {
-                                              return Container(
-                                                alignment: Alignment.center,
-                                                width: 70,
-                                                height: 50,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  color: Colors.black,
-                                                ),
-                                                child: TextButton(
-                                                  onPressed: () {
-                                                    requestFunction();
-                                                  },
-                                                  child: Text(
-                                                    'Request.',
-                                                    textAlign: TextAlign.center,
-                                                    style: TextStyle(
-                                                      fontSize: 13,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            }
-                                          });
+                                      return Container(
+                                        alignment: Alignment.center,
+                                        width: 70,
+                                        height: 50,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: Colors.black,
+                                        ),
+                                        child: TextButton(
+                                          onPressed: () {
+                                            requestFunction();
+                                          },
+                                          child: Text(
+                                            'Request',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      );
                                     }
                                   })),
                         ),
@@ -423,35 +392,37 @@ class _OtherUserProfileScreen extends State<OtherUserProfileScreen> {
   }
 
   Future<void> requestFunction() async {
-    //for current user(request sender)
-    await FirebaseFirestore.instance
-        .collection('Users')
-        .doc(widget.currentUser)
-        .update({
-      'requestId': FieldValue.arrayUnion([
-        widget.currentUser + widget.otherUserId
-      ]) //saving story Ids in real time db:firestore to an array
-    });
+    DateTime currentStamp = DateTime.now();
 
-    //for other user(request receaver)
-    await FirebaseFirestore.instance
-        .collection('Users')
-        .doc(widget.otherUserId)
-        .update({
-      'requestId': FieldValue.arrayUnion([
-        widget.currentUser + widget.otherUserId
-      ]) //saving story Ids in real time db:firestore to an array
-    });
+    String formattedTime = DateFormat('h:mm:ss a').format(currentStamp);
+    String time = DateFormat('h:mm a').format(currentStamp);
+    String date = DateFormat.yMd().format(currentStamp);
 
-    //save rewuest data
-    await FirebaseFirestore.instance
-        .collection('UserRequests')
-        .doc(widget.currentUser + widget.otherUserId)
-        .set({
-      'Sender': widget.currentUser,
-      'Reciever': widget.otherUserId,
-      'State':
-          'Pending..' //saving story Ids in real time db:firestore to an array
-    });
+    try {
+      //save rewuest data
+      await FirebaseFirestore.instance
+          .collection('UserRequests')
+          .doc(widget.currentUser + widget.otherUserId)
+          .set({
+        'Sender': widget.currentUser,
+        'Reciever': widget.otherUserId,
+        'SendTime': '$date||$formattedTime',
+        //saving story Ids in real time db:firestore to an array
+      });
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'network-request-failed') {
+        const FlashMessages(
+          imagePath:
+              'lib/image_assests/icons/flash_messege_icons/request_error_icon.png',
+          text1: 'Oops!',
+          text2: 'Connection Error..',
+          imageColor: Color(0xFF650903),
+          backGroundColor: Colors.red,
+          fontColor: Color(0xFF650903),
+          imageSize: 10,
+          duration: Duration(seconds: 5),
+        ).flashMessageFunction(context);
+      }
+    }
   }
 }
