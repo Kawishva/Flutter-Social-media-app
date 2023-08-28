@@ -321,7 +321,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         .doc(requestId)
         .get();
 
-    if (messegeDocId == requestId) {
+    if (messegeDocId != requestId) {
       try {
         await FirebaseFirestore.instance
             .collection('UserSingleChatList')

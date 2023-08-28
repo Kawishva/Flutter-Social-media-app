@@ -101,8 +101,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 width: 10,
                                 height: 10,
                                 decoration: BoxDecoration(
-                                    border: Border.all(
-                                        width: 2, color: Colors.white)),
+                                  border:
+                                      Border.all(width: 2, color: Colors.white),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(5),
                                   child: Image.network(

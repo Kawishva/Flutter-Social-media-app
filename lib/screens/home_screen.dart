@@ -177,38 +177,83 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: BoxDecoration(
                       color: Colors.transparent,
                     ),
-                    child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: 5,
-                        itemBuilder: (BuildContext context, int index) {
-                          return GestureDetector(
-                            onTap: () {},
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Container(
-                                  width: width * 0.18,
-                                  height: width * 0.2,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      width: 3,
-                                      color: Colors.red,
+                    child: StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('AllUserStoriesDetails')
+                            .orderBy('UploadedTime', descending: true)
+                            .snapshots(),
+                        builder: (context, storySnapshot) {
+                          if (storySnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Container();
+                          } else if (storySnapshot.data!.docs.isNotEmpty) {
+                            List<Map<String, dynamic>> userStoryIDList = [];
+
+                            List<String> otherStoryIdList = [];
+
+                            for (QueryDocumentSnapshot doc
+                                in storySnapshot.data!.docs) {
+                              String userID = doc.get('UserID').toString();
+
+                              String postID = doc.id;
+
+                              if (widget.currentUserID != userID) {
+                                Map<String, dynamic> userData =
+                                    doc.data() as Map<String, dynamic>;
+                                userStoryIDList.add(
+                                    userData); // Append user data to the list
+
+                                otherStoryIdList.add(postID);
+                              }
+                            }
+
+                            return ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                reverse: true,
+                                itemCount: userStoryIDList.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  String storyURL = userStoryIDList[index]
+                                          ['ImageStoryURL']
+                                      .toString();
+
+                                  return GestureDetector(
+                                    onTap: () {},
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Container(
+                                        width: width * 0.18,
+                                        height: width * 0.2,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            width: 3,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                        child: CircleAvatar(
+                                          backgroundColor: Colors.white,
+                                          backgroundImage: storyURL.isEmpty
+                                              ? AssetImage(
+                                                  'lib/image_assests/icons/user_dp2.png')
+                                              : Image.network(storyURL).image,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                  child: Image.asset(
-                                    'lib/image_assests/icons/user_dp2.png',
-                                    fit: BoxFit.contain,
-                                  )),
-                            ),
-                          );
+                                  );
+                                });
+                          } else {
+                            return Container();
+                          }
                         }),
                   ),
                 ),
-                StreamBuilder(
-                  stream: FirebaseFirestore.instance
-                      .collection('Users')
-                      .doc(widget.currentUserID)
-                      .snapshots(),
+                /* StreamBuilder<QuerySnapshot>(
+                  
+                       stream: FirebaseFirestore.instance
+                            .collection('AllUserStoriesDetails')
+                            .orderBy('UploadedTime', descending: true)
+                            .snapshots(),
                   builder: (context, userDataSnapshot) {
                     if (userDataSnapshot.connectionState ==
                         ConnectionState.waiting) {
@@ -245,7 +290,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   },
-                ),
+                ),*/
               ],
             ),
           );

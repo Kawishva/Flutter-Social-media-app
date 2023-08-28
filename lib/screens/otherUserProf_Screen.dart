@@ -250,138 +250,91 @@ class _OtherUserProfileScreen extends State<OtherUserProfileScreen> {
                         }),
                   ],
                 ),
-                StreamBuilder(
-                  // Stream for user's post data changes
-                  stream: FirebaseFirestore.instance
-                      .collection('Users')
-                      .doc(widget
-                          .otherUserId) // Replace with the currentUser!.uid
-                      .snapshots(),
-                  builder: (context, postSnapshot) {
-                    // Check if the document exists and contains data
-                    if (postSnapshot.hasData && postSnapshot.data!.exists) {
-                      List<String> postImageIds =
-                          List<String>.from(postSnapshot.data!.get('PostIDs'))
-                              .reversed
-                              .toList();
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 5, right: 5, top: 10),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+                      width: width,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withOpacity(0.3),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.grey.withOpacity(0.1),
+                              spreadRadius: 2,
+                              blurRadius: 1,
+                              offset: Offset(0, -4),
+                              blurStyle: BlurStyle.normal),
+                        ],
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(15),
+                            topRight: Radius.circular(15)),
+                      ),
+                      child: StreamBuilder<QuerySnapshot>(
+                        // Stream for user's post data changes
+                        stream: FirebaseFirestore.instance
+                            .collection('AllUserPostsDetails')
+                            .orderBy('UploadedTime', descending: true)
+                            .snapshots(),
+                        builder: (context, postSnapshot) {
+                          if (postSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Container();
+                          } else if (postSnapshot.data!.docs.isNotEmpty) {
+                            List<Map<String, dynamic>> userPostList = [];
 
-                      // Return a GridView once the data is available
+                            for (QueryDocumentSnapshot doc
+                                in postSnapshot.data!.docs) {
+                              String userID = doc.get('UserID').toString();
 
-                      return Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 5, right: 5, top: 10),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 2, horizontal: 2),
-                            width: width,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.withOpacity(0.3),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Colors.grey.withOpacity(0.1),
-                                    spreadRadius: 2,
-                                    blurRadius: 1,
-                                    offset: Offset(0, -4),
-                                    blurStyle: BlurStyle.normal),
-                              ],
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(15),
-                                  topRight: Radius.circular(15)),
-                            ),
-                            child: GridView.builder(
-                              primary: false,
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 5),
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount:
-                                    3, // Adjust the number of columns as needed
-                                crossAxisSpacing: 5,
-                                mainAxisSpacing: 5,
-                              ),
-                              itemCount: postImageIds.length,
-                              itemBuilder: (context, index) {
-                                return StreamBuilder(
-                                  stream: FirebaseFirestore.instance
-                                      .collection('AllUserPostsDetails')
-                                      .doc(postImageIds[index])
-                                      .snapshots(),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      // Show a loading indicator while post data is being fetched
-                                      return Center(
-                                          child: CircularProgressIndicator());
-                                    } else if (snapshot.hasData &&
-                                        snapshot.data!.exists) {
-                                      String postURL =
-                                          snapshot.data!.get('PostURL');
+                              if (widget.otherUserId == userID) {
+                                Map<String, dynamic> userData =
+                                    doc.data() as Map<String, dynamic>;
+                                userPostList.add(
+                                    userData); // Append user data to the list
+                              }
+                            }
 
-                                      /* int likeCount =
-                                            snapshot.data!.get('LikeCount');
-                                            
-                                        int commentCount =
-                                            snapshot.data!.get('CommentCount');*/
+                            return GridView.builder(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 5, horizontal: 5),
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount:
+                                      3, // Adjust the number of columns as needed
+                                  crossAxisSpacing: 2,
+                                  mainAxisSpacing: 2,
+                                ),
+                                itemCount: userPostList.length,
+                                itemBuilder: (context, index) {
+                                  String postURL =
+                                      userPostList[index]['PostURL'].toString();
 
-                                      return GestureDetector(
-                                        onTap: () {
-                                          /* Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    PostShowScreen(
-                                                      postId:
-                                                          postImageIds[index],
-                                                      currentUserId:
-                                                          widget.currentUser,
-                                                    )),
-                                          );*/
-                                        },
-                                        child: Container(
-                                          width: 10,
-                                          height: 10,
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              border: Border.all(
-                                                  width: 1,
-                                                  color: Colors.white)),
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            child: Image.network(
-                                              postURL,
-                                              fit: BoxFit.cover,
-                                              filterQuality: FilterQuality.high,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    } else {
-                                      // Handle case when post data doesn't exist
-                                      return Center(
-                                          child: Text(
-                                        'Post data not found',
-                                        style: TextStyle(color: Colors.black),
-                                      ));
-                                    }
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      );
-                    } else {
-                      // Handle case when document doesn't exist or has no data
-                      return Align(
-                        alignment: Alignment.bottomRight,
-                        child: Container(
-                          child: Text('No Post Yet..'),
-                        ),
-                      );
-                    }
-                  },
+                                  return Container(
+                                    width: 10,
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                          width: 2, color: Colors.white),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(5),
+                                      child: Image.network(
+                                        postURL,
+                                        fit: BoxFit.cover,
+                                        filterQuality: FilterQuality.high,
+                                      ),
+                                    ),
+                                  );
+                                });
+                          } else {
+                            return Container();
+                          }
+                        },
+                      ),
+                    ),
+                  ),
                 ),
               ],
             );

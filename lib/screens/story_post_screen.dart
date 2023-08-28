@@ -561,7 +561,7 @@ class _StoryPostScreenState extends State<StoryPostScreen> {
   Future<void> uploadFunction() async {
     DateTime currentStamp = DateTime.now();
 
-    String formattedTime = DateFormat('h:mm:ss a').format(currentStamp);
+    String formattedTime = DateFormat('HH:mm:ss').format(currentStamp);
     String time = DateFormat('h:mm a').format(currentStamp);
     String year = DateFormat.y().format(currentStamp);
     String month = DateFormat.M().format(currentStamp);
