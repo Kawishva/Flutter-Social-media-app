@@ -1,10 +1,9 @@
 import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:login_project/components/navigation_bar.dart';
-
 import '../components/flash_messages.dart';
 
 // ignore: must_be_immutable
@@ -139,19 +138,7 @@ class _PostShowScreenState extends State<PostShowScreen> {
             pushbuttonState == true;
           });
 
-          String imageUrl = userPostUrl!;
-          String bucketName = 'AllUsersPostImages';
-
-          // Extract the path from the URL
-          int pathStartIndex = imageUrl.indexOf(bucketName) +
-              bucketName.length +
-              3; // +3 for "/o/"
-          int pathEndIndex = imageUrl.indexOf("?alt=media");
-          String filePath = imageUrl.substring(pathStartIndex, pathEndIndex);
-
-          print("File path in Firebase Storage: $filePath");
-
-          /*   try {
+          try {
             FirebaseFirestore currentPostSnapshot =
                 await FirebaseFirestore.instance;
 
@@ -161,7 +148,12 @@ class _PostShowScreenState extends State<PostShowScreen> {
                 .doc(widget.postId)
                 .delete();
 
-            
+            final postRef = await FirebaseStorage.instance
+                .ref()
+                .child('AllUsersPostImages')
+                .child(widget.postId! + '.jpg');
+
+            postRef.delete();
 
             //after successfull uploading it redirects to home screen
             Navigator.pushReplacement(
@@ -185,7 +177,7 @@ class _PostShowScreenState extends State<PostShowScreen> {
                 duration: Duration(seconds: 5),
               ).flashMessageFunction(context);
             }
-          }*/
+          }
         },
         style: ElevatedButton.styleFrom(
           fixedSize: Size(width, 50),

@@ -312,12 +312,10 @@ class _ChatListsScreenState extends State<ChatListsScreen> {
                                                             Stack(
                                                               children: [
                                                                 Padding(
-                                                                  padding: EdgeInsets
-                                                                      .only(
-                                                                          left:
-                                                                              40,
-                                                                          top:
-                                                                              25),
+                                                                  padding: EdgeInsets.only(
+                                                                      left: width *
+                                                                          0.01,
+                                                                      top: 25),
                                                                   child:
                                                                       Container(
                                                                     alignment:
@@ -347,12 +345,10 @@ class _ChatListsScreenState extends State<ChatListsScreen> {
                                                                   ),
                                                                 ),
                                                                 Padding(
-                                                                  padding: EdgeInsets
-                                                                      .only(
-                                                                          left:
-                                                                              160,
-                                                                          top:
-                                                                              55),
+                                                                  padding: EdgeInsets.only(
+                                                                      left: width *
+                                                                          0.36,
+                                                                      top: 55),
                                                                   child: Text(
                                                                     lastMsg
                                                                             .toString()

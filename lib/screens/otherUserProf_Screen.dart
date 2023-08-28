@@ -407,6 +407,7 @@ class _OtherUserProfileScreen extends State<OtherUserProfileScreen> {
         'Sender': widget.currentUser,
         'Reciever': widget.otherUserId,
         'SendTime': '$date||$formattedTime',
+        'State': 'Pending',
         //saving story Ids in real time db:firestore to an array
       });
     } on FirebaseAuthException catch (e) {

@@ -35,12 +35,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
               } else if (userRequsetSnapshot.data!.docs.isNotEmpty) {
                 List<String> requestIDList = [];
 
-                String? senderID, recieverID;
+                String? senderID, recieverID, requestState;
 
                 for (QueryDocumentSnapshot doc
                     in userRequsetSnapshot.data!.docs) {
                   senderID = doc.get('Sender').toString();
                   recieverID = doc.get('Reciever').toString();
+                  requestState = doc.get('State').toString();
 
                   if (widget.currentUserID == senderID ||
                       widget.currentUserID == recieverID) {
@@ -164,85 +165,132 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                               fontWeight: FontWeight.bold),
                                         ),
                                         SizedBox(
-                                          width: width * 0.3,
+                                          width: width * 0.07,
                                         ),
-                                        widget.currentUserID == senderID
-                                            ? Text(
-                                                'Requset Sent',
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 13,
-                                                    fontStyle: FontStyle.italic,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              )
-                                            : Row(
-                                                children: [
-                                                  Container(
-                                                    alignment: Alignment.center,
-                                                    width: 70,
-                                                    height: 50,
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
+                                        requestState == 'Accepted'
+                                            ? Padding(
+                                                padding: EdgeInsets.only(
+                                                    left: width * 0.17),
+                                                child: Text(
+                                                  requestState!,
+                                                  style: TextStyle(
                                                       color: Colors.black,
-                                                    ),
-                                                    child: TextButton(
-                                                      onPressed: () {
-                                                        userAcceptFunction(
-                                                            requestIDList[
-                                                                index],
-                                                            senderID!,
-                                                            recieverID!);
-                                                        //accept funtion
-                                                      },
-                                                      child: Text(
-                                                        'Accept',
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: TextStyle(
-                                                          fontSize: 13,
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Container(
-                                                    alignment: Alignment.center,
-                                                    width: 70,
-                                                    height: 50,
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                      color: Colors.black,
-                                                    ),
-                                                    child: TextButton(
-                                                      onPressed: () {
-                                                        //accept funtion
-                                                        userRejectFunction(
-                                                            requestIDList[
-                                                                index],
-                                                            senderID!,
-                                                            recieverID!);
-                                                      },
-                                                      child: Text(
-                                                        'Reject',
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: TextStyle(
-                                                          fontSize: 13,
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
+                                                      fontSize: 13,
+                                                      fontStyle:
+                                                          FontStyle.italic,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
                                               )
+                                            : requestState == 'Rejected'
+                                                ? Padding(
+                                                    padding: EdgeInsets.only(
+                                                        left: width * 0.17),
+                                                    child: Text(
+                                                      requestState!,
+                                                      style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontSize: 13,
+                                                          fontStyle:
+                                                              FontStyle.italic,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                  )
+                                                : widget.currentUserID ==
+                                                        senderID
+                                                    ? Text(
+                                                        'Requset Sent',
+                                                        style: TextStyle(
+                                                            color: Colors.black,
+                                                            fontSize: 13,
+                                                            fontStyle: FontStyle
+                                                                .italic,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      )
+                                                    : Row(
+                                                        children: [
+                                                          Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            width: 70,
+                                                            height: 50,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10),
+                                                              color:
+                                                                  Colors.black,
+                                                            ),
+                                                            child: TextButton(
+                                                              onPressed: () {
+                                                                userAcceptFunction(
+                                                                    requestIDList[
+                                                                        index],
+                                                                    senderID!,
+                                                                    recieverID!);
+                                                                //accept funtion
+                                                              },
+                                                              child: Text(
+                                                                'Accept',
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 13,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            width: 70,
+                                                            height: 50,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10),
+                                                              color:
+                                                                  Colors.black,
+                                                            ),
+                                                            child: TextButton(
+                                                              onPressed: () {
+                                                                //accept funtion
+                                                                userRejectFunction(
+                                                                    requestIDList[
+                                                                        index],
+                                                                    senderID!,
+                                                                    recieverID!);
+                                                              },
+                                                              child: Text(
+                                                                'Reject',
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 13,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
                                       ],
                                     ),
                                   ),
