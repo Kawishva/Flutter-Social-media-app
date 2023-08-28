@@ -316,36 +316,64 @@ class _NotificationScreenState extends State<NotificationScreen> {
     String formattedTime = DateFormat.Hm().format(currentStamp);
     String formattedDate = DateFormat.yMd().format(currentStamp);
 
-    try {
-      await FirebaseFirestore.instance
-          .collection('UserSingleChatList')
-          .doc(requestId)
-          .set({
-        'Created': '$formattedTime||$formattedDate',
-        'LastMessegeTime': '$formattedDate||$formattedDate',
-        'LastMessegeTimeShow': '',
-        'LastMessege': '',
-        'User1': user1,
-        'User2': user2
-      });
+    DocumentSnapshot messegeDocId = await FirebaseFirestore.instance
+        .collection('UserSingleChatList')
+        .doc(requestId)
+        .get();
 
-      await FirebaseFirestore.instance
-          .collection('UserRequests')
-          .doc(requestId)
-          .update({'State': 'Accepted'});
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'network-request-failed') {
-        const FlashMessages(
-          imagePath:
-              'lib/image_assests/icons/flash_messege_icons/request_error_icon.png',
-          text1: 'Oops!',
-          text2: 'Connection Error..',
-          imageColor: Color(0xFF650903),
-          backGroundColor: Colors.red,
-          fontColor: Color(0xFF650903),
-          imageSize: 10,
-          duration: Duration(seconds: 5),
-        ).flashMessageFunction(context);
+    if (messegeDocId == requestId) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('UserSingleChatList')
+            .doc(requestId)
+            .set({
+          'Created': '$formattedTime||$formattedDate',
+          'LastMessegeTime': '$formattedDate||$formattedDate',
+          'LastMessegeTimeShow': '',
+          'LastMessege': '',
+          'User1': user1,
+          'User2': user2
+        });
+
+        await FirebaseFirestore.instance
+            .collection('UserRequests')
+            .doc(requestId)
+            .update({'State': 'Accepted'});
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'network-request-failed') {
+          const FlashMessages(
+            imagePath:
+                'lib/image_assests/icons/flash_messege_icons/request_error_icon.png',
+            text1: 'Oops!',
+            text2: 'Connection Error..',
+            imageColor: Color(0xFF650903),
+            backGroundColor: Colors.red,
+            fontColor: Color(0xFF650903),
+            imageSize: 10,
+            duration: Duration(seconds: 5),
+          ).flashMessageFunction(context);
+        }
+      }
+    } else {
+      try {
+        await FirebaseFirestore.instance
+            .collection('UserRequests')
+            .doc(requestId)
+            .update({'State': 'Accepted'});
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'network-request-failed') {
+          const FlashMessages(
+            imagePath:
+                'lib/image_assests/icons/flash_messege_icons/request_error_icon.png',
+            text1: 'Oops!',
+            text2: 'Connection Error..',
+            imageColor: Color(0xFF650903),
+            backGroundColor: Colors.red,
+            fontColor: Color(0xFF650903),
+            imageSize: 10,
+            duration: Duration(seconds: 5),
+          ).flashMessageFunction(context);
+        }
       }
     }
   }
