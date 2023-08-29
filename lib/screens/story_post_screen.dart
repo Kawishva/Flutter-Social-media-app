@@ -12,9 +12,15 @@ import '../components/show_dialog_request.dart';
 
 // ignore: must_be_immutable
 class StoryPostScreen extends StatefulWidget {
+  int storyPostStatePasser;
+  bool storyIsOnStatePasser;
   String currentUserId;
 
-  StoryPostScreen({super.key, required this.currentUserId});
+  StoryPostScreen(
+      {super.key,
+      required this.currentUserId,
+      required this.storyPostStatePasser,
+      required this.storyIsOnStatePasser});
 
   @override
   State<StoryPostScreen> createState() => _StoryPostScreenState();
@@ -26,15 +32,18 @@ class _StoryPostScreenState extends State<StoryPostScreen> {
   final userDialogText =
       TextEditingController(); // taking text to text field in story screen dialog window
 
-  int storyPostState = 0; // indexstach index changer
+  int storyPostState = 0;
+  bool storyIsOnState = true;
+
   File? storyPostImage; //imageholder variable
   String? imageDescription = null; //user description text holder
-  bool storyIsOnState = true,
-      pushbuttonState =
-          false; //story icon and firebase post or story upload state changer
+  bool pushbuttonState =
+      false; //story icon and firebase post or story upload state changer
 
   void initState() {
     super.initState();
+    storyPostState = widget.storyPostStatePasser; // indexstach index changer
+    storyIsOnState = widget.storyIsOnStatePasser;
   }
 
   @override

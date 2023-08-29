@@ -130,6 +130,8 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                             MaterialPageRoute(
                                 builder: (context) => StoryPostScreen(
                                       currentUserId: currentUser!.uid,
+                                      storyIsOnStatePasser: true,
+                                      storyPostStatePasser: 0,
                                     )),
                           );
                         },
