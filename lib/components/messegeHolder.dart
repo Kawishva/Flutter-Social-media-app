@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
@@ -36,10 +37,74 @@ class MessegeHolder extends StatelessWidget {
         builder: (context, userDataSnapshot) {
           if (userDataSnapshot.connectionState == ConnectionState.waiting) {
             // Show a loading indicator while post data is being fetched
-            return Center(
-              child: CircularProgressIndicator(
-                color: Colors.black,
-              ),
+            return Column(
+              crossAxisAlignment: alignmentMessegeHolder,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Container(
+                    width: userMsg.length.toDouble() > width / 20
+                        ? width * 3 / 4
+                        : null,
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    decoration: BoxDecoration(
+                        color: messegeHolderColor,
+                        borderRadius: messegeHolderBorderRadius),
+                    child: FadeShimmer(
+                      height: 8,
+                      width: 50,
+                      radius: 4,
+                      millisecondsDelay: 300,
+                      fadeTheme: FadeTheme.dark,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.only(top: 5, bottom: 15, right: 5, left: 5),
+                  child: senderIsCurrentUser == true
+                      ? Row(
+                          mainAxisAlignment: alignmentDpAndTime,
+                          children: [
+                            FadeShimmer(
+                              height: 8,
+                              width: 50,
+                              radius: 4,
+                              millisecondsDelay: 300,
+                              fadeTheme: FadeTheme.dark,
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            FadeShimmer.round(
+                              size: width * 0.03,
+                              fadeTheme: FadeTheme.dark,
+                              millisecondsDelay: 300,
+                            ),
+                          ],
+                        )
+                      : Row(
+                          mainAxisAlignment: alignmentDpAndTime,
+                          children: [
+                            FadeShimmer.round(
+                              size: width * 0.03,
+                              fadeTheme: FadeTheme.dark,
+                              millisecondsDelay: 300,
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            FadeShimmer(
+                              height: 8,
+                              width: 50,
+                              radius: 4,
+                              millisecondsDelay: 300,
+                              fadeTheme: FadeTheme.dark,
+                            ),
+                          ],
+                        ),
+                ),
+              ],
             );
           } else {
             String senderDpUrl = userDataSnapshot.data!.get('DpURL');

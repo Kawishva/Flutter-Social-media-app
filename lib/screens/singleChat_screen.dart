@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import '../components/flash_messages.dart';
 import '../components/messegeHolder.dart';
@@ -74,6 +75,13 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                       } else if (msgSnapshots.data!.docs.isNotEmpty) {
                         List<Map<String, dynamic>> currentUserChatDataList = [];
 
+                        List<String> chatDocIdList = [];
+
+                        for (QueryDocumentSnapshot doc
+                            in msgSnapshots.data!.docs) {
+                          chatDocIdList.add(doc.id);
+                        }
+
                         // Process the data
                         currentUserChatDataList = msgSnapshots.data!.docs
                             .map((doc) => doc.data() as Map<String, dynamic>)
@@ -101,45 +109,61 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                                       ['Time']
                                   .toString();
 
-                              return MessegeHolder(
-                                userId: widget.currentUser == senderId
-                                    ? senderId
-                                    : senderId,
-                                userMsg: msg,
-                                width: width,
-                                time: time,
-                                alignmentMessegeHolder:
-                                    widget.currentUser == senderId
-                                        ? CrossAxisAlignment.end
-                                        : CrossAxisAlignment.start,
-                                alignmentDpAndTime:
-                                    widget.currentUser == senderId
-                                        ? MainAxisAlignment.end
-                                        : MainAxisAlignment.start,
-                                alignmentTime: widget.currentUser == senderId
-                                    ? TextAlign.end
-                                    : TextAlign.start,
-                                messegeColor: widget.currentUser == senderId
-                                    ? Colors.white
-                                    : Colors.black,
-                                messegeHolderColor:
-                                    widget.currentUser == senderId
-                                        ? Colors.black
-                                        : Colors.grey.withOpacity(0.6),
-                                messegeHolderBorderRadius:
-                                    widget.currentUser == senderId
-                                        ? BorderRadius.only(
-                                            topLeft: Radius.circular(20),
-                                            topRight: Radius.circular(20),
-                                            bottomLeft: Radius.circular(20))
-                                        : BorderRadius.only(
-                                            topLeft: Radius.circular(20),
-                                            topRight: Radius.circular(20),
-                                            bottomRight: Radius.circular(20)),
-                                senderIsCurrentUser:
-                                    widget.currentUser == senderId
-                                        ? true
-                                        : false,
+                              return Slidable(
+                                endActionPane: ActionPane(
+                                    motion: ScrollMotion(),
+                                    children: [
+                                      SlidableAction(
+                                        // An action can be bigger than the others.
+
+                                        onPressed: (context) {
+                                          messegeDeleteFunction(
+                                              chatDocIdList[index]);
+                                        },
+                                        backgroundColor: Colors.red,
+                                        icon: Icons.delete_forever_outlined,
+                                      ),
+                                    ]),
+                                child: MessegeHolder(
+                                  userId: widget.currentUser == senderId
+                                      ? senderId
+                                      : senderId,
+                                  userMsg: msg,
+                                  width: width,
+                                  time: time,
+                                  alignmentMessegeHolder:
+                                      widget.currentUser == senderId
+                                          ? CrossAxisAlignment.end
+                                          : CrossAxisAlignment.start,
+                                  alignmentDpAndTime:
+                                      widget.currentUser == senderId
+                                          ? MainAxisAlignment.end
+                                          : MainAxisAlignment.start,
+                                  alignmentTime: widget.currentUser == senderId
+                                      ? TextAlign.end
+                                      : TextAlign.start,
+                                  messegeColor: widget.currentUser == senderId
+                                      ? Colors.white
+                                      : Colors.black,
+                                  messegeHolderColor:
+                                      widget.currentUser == senderId
+                                          ? Colors.black
+                                          : Colors.grey.withOpacity(0.6),
+                                  messegeHolderBorderRadius:
+                                      widget.currentUser == senderId
+                                          ? BorderRadius.only(
+                                              topLeft: Radius.circular(20),
+                                              topRight: Radius.circular(20),
+                                              bottomLeft: Radius.circular(20))
+                                          : BorderRadius.only(
+                                              topLeft: Radius.circular(20),
+                                              topRight: Radius.circular(20),
+                                              bottomRight: Radius.circular(20)),
+                                  senderIsCurrentUser:
+                                      widget.currentUser == senderId
+                                          ? true
+                                          : false,
+                                ),
                               );
                             });
                       } else {
@@ -178,9 +202,7 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                           padding:
                               EdgeInsets.only(bottom: 15, right: 5, left: 0),
                           child: IconButton(
-                              onPressed: () {
-                                print(userMsg.text.length.toDouble());
-                              },
+                              onPressed: () {},
                               icon: Icon(
                                 Icons.add_box_outlined,
                                 color: Colors.white,
@@ -327,6 +349,34 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
             duration: Duration(seconds: 5),
           ).flashMessageFunction(context);
         }
+      }
+    }
+  }
+
+  Future<void> messegeDeleteFunction(String msgDocId) async {
+    try {
+      FirebaseFirestore currentPostSnapshot = await FirebaseFirestore.instance;
+
+      //delete post from all user post collection
+      currentPostSnapshot
+          .collection('UserSingleChatList')
+          .doc(widget.singleChatId)
+          .collection('ChatData')
+          .doc(msgDocId)
+          .delete();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'network-request-failed') {
+        const FlashMessages(
+          imagePath:
+              'lib/image_assests/icons/flash_messege_icons/request_error_icon.png',
+          text1: 'Oops!',
+          text2: 'Connection Error..',
+          imageColor: Color(0xFF650903),
+          backGroundColor: Colors.red,
+          fontColor: Color(0xFF650903),
+          imageSize: 10,
+          duration: Duration(seconds: 5),
+        ).flashMessageFunction(context);
       }
     }
   }
