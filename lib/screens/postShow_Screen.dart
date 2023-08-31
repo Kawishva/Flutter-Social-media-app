@@ -8,9 +8,9 @@ import '../components/flash_messages.dart';
 
 // ignore: must_be_immutable
 class PostShowScreen extends StatefulWidget {
-  String? postId;
+  String? postId, postURL;
 
-  PostShowScreen({super.key, required this.postId});
+  PostShowScreen({super.key, required this.postId, required this.postURL});
 
   @override
   State<PostShowScreen> createState() => _PostShowScreenState();
@@ -21,7 +21,6 @@ class _PostShowScreenState extends State<PostShowScreen> {
   String? userPostUrl;
 
   void initState() {
-    postImageFunction();
     super.initState();
   }
 
@@ -83,11 +82,7 @@ class _PostShowScreenState extends State<PostShowScreen> {
                         top: 20, right: width * 0.015, left: width * 0.015),
                     child: ClipRRect(
                         borderRadius: BorderRadius.circular(10),
-                        child: userPostUrl != null
-                            ? Image.network(userPostUrl!)
-                            : Text(userPostUrl == null
-                                ? 'no post url'
-                                : userPostUrl!)),
+                        child: Image.network(widget.postURL!)),
                   )
                 ],
               ),
@@ -115,17 +110,6 @@ class _PostShowScreenState extends State<PostShowScreen> {
         );
       })),
     );
-  }
-
-  Future<void> postImageFunction() async {
-    DocumentSnapshot currentPostSnapshot = await FirebaseFirestore.instance
-        .collection('AllUserPostsDetails')
-        .doc(widget.postId)
-        .get();
-
-    setState(() {
-      userPostUrl = currentPostSnapshot.get('PostURL');
-    });
   }
 
   Future<void> postDeleteFunction(double width) async {

@@ -94,6 +94,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   MaterialPageRoute(
                                       builder: (context) => PostShowScreen(
                                             postId: userPostIDList[index],
+                                            postURL: postURL,
                                           )),
                                 );
                               },

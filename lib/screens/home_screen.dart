@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:login_project/screens/story_post_screen.dart';
+import 'package:login_project/screens/story_showing_screen.dart';
 import '../components/post_main_holder_component.dart';
 
 // ignore: must_be_immutable
@@ -261,7 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     } else if (currentUserStorySnapshot.data!.docs.isNotEmpty) {
                       List<Map<String, dynamic>> userStoryIDList = [];
 
-                      List<String> otherStoryIdList = [];
+                      List<String> userStoryIdList = [];
                       List<String> currentUserStoryURL = [];
 
                       for (QueryDocumentSnapshot doc
@@ -276,13 +277,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           userStoryIDList
                               .add(userData); // Append user data to the list
 
-                          otherStoryIdList.add(postID);
+                          userStoryIdList.add(postID);
                         }
                       }
 
                       for (int i = 0; i < userStoryIDList.length; i++) {
-                        currentUserStoryURL.insert(
-                            i, userStoryIDList[i]['ImageStoryURL'].toString());
+                        currentUserStoryURL.add(
+                            userStoryIDList[i]['ImageStoryURL'].toString());
                       }
                       return Stack(
                         children: [
@@ -292,7 +293,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               padding: EdgeInsets.only(top: 5, right: 5),
                               child: GestureDetector(
                                 onTap: () {
-                                  print(currentUserStoryURL[0]);
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            StoryShowingScreen(
+                                              storyURL: currentUserStoryURL,
+                                            )),
+                                  );
                                 },
                                 child: Container(
                                   width: width * 0.18,
@@ -309,7 +317,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     backgroundImage: currentUserStoryURL.isEmpty
                                         ? AssetImage(
                                             'lib/image_assests/icons/user_dp2.png')
-                                        : Image.network(currentUserStoryURL[0])
+                                        : Image.network(
+                                                currentUserStoryURL.first)
                                             .image,
                                   ),
                                 ),
