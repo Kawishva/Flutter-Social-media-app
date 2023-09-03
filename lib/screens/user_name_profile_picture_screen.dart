@@ -269,10 +269,12 @@ class _UserNamePictureScreenState extends State<UserNamePictureScreen> {
             });
 
             await FirebaseFirestore.instance
-                .collection('AllUserIDs')
-                .doc('UserIDs')
-                .update({
-              'UserIDs': FieldValue.arrayUnion([currentUser.uid]),
+                .collection('AllUserStoriesDetails')
+                .doc(currentUser.uid)
+                .set({
+              //saving posts detatils
+              'UploadedTime': '',
+              'Time': '',
             });
 
             //directing to navigation bar component
@@ -349,6 +351,14 @@ class _UserNamePictureScreenState extends State<UserNamePictureScreen> {
               'PostIDs': FieldValue.arrayUnion([]),
               'StoryIDs': FieldValue.arrayUnion([]),
               'Description': description.text.isNotEmpty ? description.text : ''
+            });
+            await FirebaseFirestore.instance
+                .collection('AllUserStoriesDetails')
+                .doc(currentUser.uid)
+                .set({
+              //saving posts detatils
+              'UploadedTime': '',
+              'Time': '',
             });
 
             //directing to navigation bar component

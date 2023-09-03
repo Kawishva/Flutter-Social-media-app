@@ -33,19 +33,22 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   ConnectionState.waiting) {
                 return Container();
               } else if (userRequsetSnapshot.data!.docs.isNotEmpty) {
-                List<String> requestIDList = [];
+                List<String> requsetIDLists = [];
 
-                String? senderID, recieverID, requestState;
+                List<Map<String, dynamic>> requestIDList = [];
 
                 for (QueryDocumentSnapshot doc
                     in userRequsetSnapshot.data!.docs) {
-                  senderID = doc.get('Sender').toString();
-                  recieverID = doc.get('Reciever').toString();
-                  requestState = doc.get('State').toString();
+                  String senderID = doc.get('Sender').toString();
+                  String recieverID = doc.get('Reciever').toString();
 
                   if (widget.currentUserID == senderID ||
                       widget.currentUserID == recieverID) {
-                    requestIDList.add(doc.id);
+                    Map<String, dynamic> userData =
+                        doc.data() as Map<String, dynamic>;
+                    requestIDList.add(userData);
+
+                    requsetIDLists.add(doc.id);
                   }
                 }
 
@@ -55,12 +58,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       scrollDirection: Axis.vertical,
                       itemCount: requestIDList.length,
                       itemBuilder: (context, index) {
+                        String senderId =
+                            requestIDList[index]['Sender'].toString();
+                        String recieverId =
+                            requestIDList[index]['Reciever'].toString();
+                        String requestCurrentState =
+                            requestIDList[index]['State'].toString();
+
                         return StreamBuilder(
                             stream: FirebaseFirestore.instance
                                 .collection('Users')
-                                .doc(widget.currentUserID == senderID
-                                    ? recieverID
-                                    : senderID)
+                                .doc(widget.currentUserID == senderId
+                                    ? recieverId
+                                    : senderId)
                                 .snapshots(),
                             builder: (context, otherUserSnapshot) {
                               if (otherUserSnapshot.connectionState ==
@@ -167,38 +177,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                         SizedBox(
                                           width: width * 0.07,
                                         ),
-                                        requestState == 'Accepted'
-                                            ? Padding(
-                                                padding: EdgeInsets.only(
-                                                    left: width * 0.17),
-                                                child: Text(
-                                                  requestState!,
-                                                  style: TextStyle(
-                                                      color: Colors.black,
-                                                      fontSize: 13,
-                                                      fontStyle:
-                                                          FontStyle.italic,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              )
-                                            : requestState == 'Rejected'
-                                                ? Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: width * 0.17),
-                                                    child: Text(
-                                                      requestState!,
-                                                      style: TextStyle(
-                                                          color: Colors.black,
-                                                          fontSize: 13,
-                                                          fontStyle:
-                                                              FontStyle.italic,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
-                                                  )
-                                                : widget.currentUserID ==
-                                                        senderID
+                                        Padding(
+                                            padding: EdgeInsets.only(
+                                                left: width * 0.17),
+                                            child: widget.currentUserID ==
+                                                    senderId
+                                                ? requestCurrentState ==
+                                                        'Pending'
                                                     ? Text(
                                                         'Requset Sent',
                                                         style: TextStyle(
@@ -210,7 +195,20 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                                                 FontWeight
                                                                     .bold),
                                                       )
-                                                    : Row(
+                                                    : Text(
+                                                        requestCurrentState,
+                                                        style: TextStyle(
+                                                            color: Colors.black,
+                                                            fontSize: 13,
+                                                            fontStyle: FontStyle
+                                                                .italic,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      )
+                                                : requestCurrentState ==
+                                                        'Pending'
+                                                    ? Row(
                                                         children: [
                                                           Container(
                                                             alignment: Alignment
@@ -229,10 +227,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                                             child: TextButton(
                                                               onPressed: () {
                                                                 userAcceptFunction(
-                                                                    requestIDList[
+                                                                    requsetIDLists[
                                                                         index],
-                                                                    senderID!,
-                                                                    recieverID!);
+                                                                    senderId,
+                                                                    recieverId);
                                                                 //accept funtion
                                                               },
                                                               child: Text(
@@ -270,10 +268,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                                               onPressed: () {
                                                                 //accept funtion
                                                                 userRejectFunction(
-                                                                    requestIDList[
+                                                                    requsetIDLists[
                                                                         index],
-                                                                    senderID!,
-                                                                    recieverID!);
+                                                                    senderId,
+                                                                    recieverId);
                                                               },
                                                               child: Text(
                                                                 'Reject',
@@ -290,7 +288,18 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                                             ),
                                                           ),
                                                         ],
-                                                      ),
+                                                      )
+                                                    : Text(
+                                                        requestCurrentState,
+                                                        style: TextStyle(
+                                                            color: Colors.black,
+                                                            fontSize: 13,
+                                                            fontStyle: FontStyle
+                                                                .italic,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      )),
                                       ],
                                     ),
                                   ),

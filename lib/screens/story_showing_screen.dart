@@ -36,6 +36,7 @@ class _StoryShowingScreenState extends State<StoryShowingScreen> {
   @override
   void dispose() {
     currentStoryState = 0;
+
     super.dispose();
   }
 
@@ -102,6 +103,7 @@ class _StoryShowingScreenState extends State<StoryShowingScreen> {
                 currentStoryState++;
               });
             } else {
+              percentWatched[currentStoryState] = 1;
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(

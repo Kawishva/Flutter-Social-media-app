@@ -588,13 +588,24 @@ class _StoryPostScreenState extends State<StoryPostScreen> {
           //making user stories details collection
           await FirebaseFirestore.instance
               .collection('AllUserStoriesDetails')
-              .doc(widget.currentUserId + '$date.$month.$year||$formattedTime')
+              .doc(widget.currentUserId)
+              .collection('Stories')
+              .doc('$date.$month.$year||$formattedTime')
               .set({
             //saving posts detatils
-            'UserID': widget.currentUserId,
+
             'UploadedTime': formattedTime,
             'Time': time,
             'TextStory': userText.text,
+          });
+
+          await FirebaseFirestore.instance
+              .collection('AllUserStoriesDetails')
+              .doc(widget.currentUserId)
+              .update({
+            //saving posts detatils
+            'UploadedTime': formattedTime,
+            'Time': time,
           });
         } on FirebaseAuthException catch (e) {
           if (e.code == 'network-request-failed') {
@@ -634,7 +645,9 @@ class _StoryPostScreenState extends State<StoryPostScreen> {
           //making user stories details collection
           await FirebaseFirestore.instance
               .collection('AllUserStoriesDetails')
-              .doc(widget.currentUserId + '$date.$month.$year||$formattedTime')
+              .doc(widget.currentUserId)
+              .collection('Stories')
+              .doc('$date.$month.$year||$formattedTime')
               .set({
             //saving Image Story detatils
             'UserID': widget.currentUserId,
@@ -642,6 +655,14 @@ class _StoryPostScreenState extends State<StoryPostScreen> {
             'UploadedTime': formattedTime,
             'Time': time,
             'StoryDescription': imageDescription == null ? '' : imageDescription
+          });
+          await FirebaseFirestore.instance
+              .collection('AllUserStoriesDetails')
+              .doc(widget.currentUserId)
+              .update({
+            //saving posts detatils
+            'UploadedTime': formattedTime,
+            'Time': time,
           });
         } on FirebaseAuthException catch (e) {
           if (e.code == 'network-request-failed') {

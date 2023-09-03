@@ -184,66 +184,121 @@ class _HomeScreenState extends State<HomeScreen> {
                             .collection('AllUserStoriesDetails')
                             .orderBy('UploadedTime', descending: true)
                             .snapshots(),
-                        builder: (context, storySnapshot) {
-                          if (storySnapshot.connectionState ==
+                        builder: (context, otherUserStorySnapshot) {
+                          if (otherUserStorySnapshot.connectionState ==
                               ConnectionState.waiting) {
                             return Container();
-                          } else if (storySnapshot.data!.docs.isNotEmpty) {
-                            List<Map<String, dynamic>> userStoryIDList = [];
-
-                            List<String> otherStoryIdList = [];
+                          } else if (otherUserStorySnapshot
+                              .data!.docs.isNotEmpty) {
+                            List<String> otherUserStoryIDList = [];
 
                             for (QueryDocumentSnapshot doc
-                                in storySnapshot.data!.docs) {
-                              String userID = doc.get('UserID').toString();
+                                in otherUserStorySnapshot.data!.docs) {
+                              String storyID = doc.id;
 
-                              String postID = doc.id;
-
-                              if (widget.currentUserID != userID) {
-                                Map<String, dynamic> userData =
-                                    doc.data() as Map<String, dynamic>;
-                                userStoryIDList.add(
-                                    userData); // Append user data to the list
-
-                                otherStoryIdList.add(postID);
+                              if (widget.currentUserID != storyID) {
+                                otherUserStoryIDList.add(storyID);
                               }
                             }
 
-                            return ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                padding: EdgeInsets.symmetric(horizontal: 5),
-                                reverse: true,
-                                itemCount: userStoryIDList.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  String storyURL = userStoryIDList[index]
-                                          ['ImageStoryURL']
-                                      .toString();
+                            if (otherUserStoryIDList.isNotEmpty) {
+                              return ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: EdgeInsets.symmetric(horizontal: 5),
+                                  reverse: true,
+                                  itemCount: otherUserStoryIDList.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return StreamBuilder<QuerySnapshot>(
+                                        stream: FirebaseFirestore.instance
+                                            .collection('AllUserStoriesDetails')
+                                            .doc(otherUserStoryIDList[index])
+                                            .collection('Stories')
+                                            .orderBy('UploadedTime',
+                                                descending: true)
+                                            .snapshots(),
+                                        builder: (context,
+                                            otherUserStoryDataSnapshot) {
+                                          if (otherUserStoryDataSnapshot
+                                                  .connectionState ==
+                                              ConnectionState.waiting) {
+                                            return Container();
+                                          } else if (otherUserStoryDataSnapshot
+                                              .data!.docs.isNotEmpty) {
+                                            List<Map<String, dynamic>>
+                                                otherUserStoryIDList = [];
 
-                                  return GestureDetector(
-                                    onTap: () {},
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: Container(
-                                        width: width * 0.18,
-                                        height: width * 0.2,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            width: 3,
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                        child: CircleAvatar(
-                                          backgroundColor: Colors.white,
-                                          backgroundImage: storyURL.isEmpty
-                                              ? AssetImage(
-                                                  'lib/image_assests/icons/user_dp2.png')
-                                              : Image.network(storyURL).image,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                });
+                                            List<String> otherUserPostURLs = [];
+
+                                            for (QueryDocumentSnapshot doc
+                                                in otherUserStoryDataSnapshot
+                                                    .data!.docs) {
+                                              Map<String, dynamic> userData =
+                                                  doc.data()
+                                                      as Map<String, dynamic>;
+                                              otherUserStoryIDList.add(
+                                                  userData); // Append user data to the list
+                                            }
+
+                                            for (int i = 0;
+                                                i < otherUserStoryIDList.length;
+                                                i++) {
+                                              otherUserPostURLs.add(
+                                                  otherUserStoryIDList[i]
+                                                          ['ImageStoryURL']
+                                                      .toString());
+                                            }
+                                            if (otherUserPostURLs.isNotEmpty) {
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  Navigator.pushReplacement(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            StoryShowingScreen(
+                                                              storyURL:
+                                                                  otherUserPostURLs,
+                                                            )),
+                                                  );
+                                                },
+                                                child: Align(
+                                                  alignment: Alignment.center,
+                                                  child: Container(
+                                                    width: width * 0.18,
+                                                    height: width * 0.2,
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                        width: 3,
+                                                        color: Colors.red,
+                                                      ),
+                                                    ),
+                                                    child: CircleAvatar(
+                                                      backgroundColor:
+                                                          Colors.white,
+                                                      backgroundImage: otherUserPostURLs
+                                                              .isEmpty
+                                                          ? AssetImage(
+                                                              'lib/image_assests/icons/user_dp2.png')
+                                                          : Image.network(
+                                                                  otherUserPostURLs
+                                                                      .first)
+                                                              .image,
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            } else {
+                                              return Container();
+                                            }
+                                          } else {
+                                            return Container();
+                                          }
+                                        });
+                                  });
+                            } else {
+                              return Container();
+                            }
                           } else {
                             return Container();
                           }
@@ -253,114 +308,386 @@ class _HomeScreenState extends State<HomeScreen> {
                 StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
                       .collection('AllUserStoriesDetails')
-                      .orderBy('UploadedTime', descending: true)
                       .snapshots(),
                   builder: (context, currentUserStorySnapshot) {
                     if (currentUserStorySnapshot.connectionState ==
                         ConnectionState.waiting) {
                       return Container();
                     } else if (currentUserStorySnapshot.data!.docs.isNotEmpty) {
-                      List<Map<String, dynamic>> userStoryIDList = [];
-
-                      List<String> userStoryIdList = [];
-                      List<String> currentUserStoryURL = [];
+                      String? userStoryId;
 
                       for (QueryDocumentSnapshot doc
                           in currentUserStorySnapshot.data!.docs) {
-                        String userID = doc.get('UserID').toString();
+                        String storyID = doc.id;
 
-                        String postID = doc.id;
-
-                        if (widget.currentUserID == userID) {
-                          Map<String, dynamic> userData =
-                              doc.data() as Map<String, dynamic>;
-                          userStoryIDList
-                              .add(userData); // Append user data to the list
-
-                          userStoryIdList.add(postID);
+                        if (widget.currentUserID == storyID) {
+                          userStoryId = storyID;
                         }
                       }
 
-                      for (int i = 0; i < userStoryIDList.length; i++) {
-                        currentUserStoryURL.add(
-                            userStoryIDList[i]['ImageStoryURL'].toString());
-                      }
-                      return Stack(
-                        children: [
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 5, right: 5),
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            StoryShowingScreen(
-                                              storyURL: currentUserStoryURL,
-                                            )),
+                      if (userStoryId != null) {
+                        return StreamBuilder<QuerySnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('AllUserStoriesDetails')
+                                .doc(userStoryId)
+                                .collection('Stories')
+                                .orderBy('UploadedTime', descending: true)
+                                .snapshots(),
+                            builder: (context, currentUserStorySnapshotData) {
+                              if (currentUserStorySnapshotData
+                                      .connectionState ==
+                                  ConnectionState.waiting) {
+                                return Container();
+                              } else if (currentUserStorySnapshotData
+                                  .data!.docs.isNotEmpty) {
+                                List<Map<String, dynamic>>
+                                    currentUserStoryIDList = [];
+
+                                List<String> currentUserPostURLs = [];
+
+                                for (QueryDocumentSnapshot doc
+                                    in currentUserStorySnapshotData
+                                        .data!.docs) {
+                                  Map<String, dynamic> userData =
+                                      doc.data() as Map<String, dynamic>;
+                                  currentUserStoryIDList.add(
+                                      userData); // Append user data to the list
+                                }
+
+                                for (int i = 0;
+                                    i < currentUserStoryIDList.length;
+                                    i++) {
+                                  currentUserPostURLs.add(
+                                      currentUserStoryIDList[i]['ImageStoryURL']
+                                          .toString());
+                                }
+
+                                if (currentUserPostURLs.isNotEmpty) {
+                                  return Stack(
+                                    children: [
+                                      Align(
+                                        alignment: Alignment.topRight,
+                                        child: Padding(
+                                          padding:
+                                              EdgeInsets.only(top: 5, right: 5),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        StoryShowingScreen(
+                                                          storyURL:
+                                                              currentUserPostURLs,
+                                                        )),
+                                              );
+                                            },
+                                            child: Container(
+                                              width: width * 0.18,
+                                              height: width * 0.18,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  width: 5,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                              child: CircleAvatar(
+                                                backgroundColor: Colors.white,
+                                                backgroundImage: currentUserPostURLs
+                                                        .isEmpty
+                                                    ? AssetImage(
+                                                        'lib/image_assests/icons/user_dp2.png')
+                                                    : Image.network(
+                                                            currentUserPostURLs
+                                                                .first)
+                                                        .image,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Align(
+                                        alignment: Alignment.topRight,
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                              top: width * 0.13,
+                                              right: width * 0.02),
+                                          child: Container(
+                                            width: 30,
+                                            height: 30,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: FloatingActionButton(
+                                              onPressed: () {
+                                                Navigator.pushReplacement(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          StoryPostScreen(
+                                                            currentUserId: widget
+                                                                .currentUserID,
+                                                            storyIsOnStatePasser:
+                                                                true,
+                                                            storyPostStatePasser:
+                                                                0,
+                                                          )),
+                                                );
+                                              },
+                                              foregroundColor: Colors.black,
+                                              backgroundColor: Colors.white,
+                                              child: Icon(
+                                                Icons.add_box_outlined,
+                                                size: 25,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    ],
                                   );
-                                },
-                                child: Container(
-                                  width: width * 0.18,
-                                  height: width * 0.18,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      width: 5,
-                                      color: Colors.black,
+                                } else {
+                                  return Align(
+                                    alignment: Alignment.topRight,
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.only(top: 5, right: 5),
+                                      child: StreamBuilder(
+                                          stream: FirebaseFirestore.instance
+                                              .collection('Users')
+                                              .doc(widget
+                                                  .currentUserID) // Replace with the  currentUser!.uid
+                                              .snapshots(),
+                                          builder: (context, userDataSnapshot) {
+                                            if (userDataSnapshot
+                                                    .connectionState ==
+                                                ConnectionState.waiting) {
+                                              // Handle the loading state if needed
+                                              return CircularProgressIndicator(); // Replace with your loading widget
+                                            } else {
+                                              // Update the state variables with the new data
+                                              String userdpURL =
+                                                  userDataSnapshot.data!
+                                                      .get('DpURL');
+
+                                              return Container(
+                                                width: width * 0.18,
+                                                height: width * 0.18,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(
+                                                    width: 5,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                                child: Stack(
+                                                  children: [
+                                                    CircleAvatar(
+                                                      backgroundColor:
+                                                          Colors.white,
+                                                      radius: 100,
+                                                      backgroundImage: userdpURL
+                                                              .isEmpty
+                                                          ? AssetImage(
+                                                              'lib/image_assests/icons/user_dp2.png')
+                                                          : Image.network(
+                                                                  userdpURL)
+                                                              .image,
+                                                    ),
+                                                    FloatingActionButton(
+                                                      onPressed: () {
+                                                        Navigator
+                                                            .pushReplacement(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  StoryPostScreen(
+                                                                    currentUserId:
+                                                                        widget
+                                                                            .currentUserID,
+                                                                    storyIsOnStatePasser:
+                                                                        true,
+                                                                    storyPostStatePasser:
+                                                                        0,
+                                                                  )),
+                                                        );
+                                                      },
+                                                      backgroundColor:
+                                                          Colors.transparent,
+                                                      child: Icon(
+                                                        Icons
+                                                            .add_circle_outline_sharp,
+                                                        size: 60,
+                                                        color: Colors.white
+                                                            .withOpacity(0.4),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            }
+                                          }),
                                     ),
+                                  );
+                                }
+                              } else {
+                                return Align(
+                                  alignment: Alignment.topRight,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(top: 5, right: 5),
+                                    child: StreamBuilder(
+                                        stream: FirebaseFirestore.instance
+                                            .collection('Users')
+                                            .doc(widget
+                                                .currentUserID) // Replace with the  currentUser!.uid
+                                            .snapshots(),
+                                        builder: (context, userDataSnapshot) {
+                                          if (userDataSnapshot
+                                                  .connectionState ==
+                                              ConnectionState.waiting) {
+                                            // Handle the loading state if needed
+                                            return CircularProgressIndicator(); // Replace with your loading widget
+                                          } else {
+                                            // Update the state variables with the new data
+                                            String userdpURL = userDataSnapshot
+                                                .data!
+                                                .get('DpURL');
+
+                                            return Container(
+                                              width: width * 0.18,
+                                              height: width * 0.18,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  width: 5,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                              child: Stack(
+                                                children: [
+                                                  CircleAvatar(
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    radius: 100,
+                                                    backgroundImage: userdpURL
+                                                            .isEmpty
+                                                        ? AssetImage(
+                                                            'lib/image_assests/icons/user_dp2.png')
+                                                        : Image.network(
+                                                                userdpURL)
+                                                            .image,
+                                                  ),
+                                                  FloatingActionButton(
+                                                    onPressed: () {
+                                                      Navigator.pushReplacement(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                StoryPostScreen(
+                                                                  currentUserId:
+                                                                      widget
+                                                                          .currentUserID,
+                                                                  storyIsOnStatePasser:
+                                                                      true,
+                                                                  storyPostStatePasser:
+                                                                      0,
+                                                                )),
+                                                      );
+                                                    },
+                                                    backgroundColor:
+                                                        Colors.transparent,
+                                                    child: Icon(
+                                                      Icons
+                                                          .add_circle_outline_sharp,
+                                                      size: 60,
+                                                      color: Colors.white
+                                                          .withOpacity(0.4),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }
+                                        }),
                                   ),
-                                  child: CircleAvatar(
-                                    backgroundColor: Colors.white,
-                                    backgroundImage: currentUserStoryURL.isEmpty
-                                        ? AssetImage(
-                                            'lib/image_assests/icons/user_dp2.png')
-                                        : Image.network(
-                                                currentUserStoryURL.first)
-                                            .image,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                  top: width * 0.13, right: width * 0.02),
-                              child: Container(
-                                width: 30,
-                                height: 30,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                ),
-                                child: FloatingActionButton(
-                                  onPressed: () {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => StoryPostScreen(
-                                                currentUserId:
-                                                    widget.currentUserID,
-                                                storyIsOnStatePasser: true,
-                                                storyPostStatePasser: 0,
-                                              )),
+                                );
+                              }
+                            });
+                      } else {
+                        return Align(
+                          alignment: Alignment.topRight,
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 5, right: 5),
+                            child: StreamBuilder(
+                                stream: FirebaseFirestore.instance
+                                    .collection('Users')
+                                    .doc(widget
+                                        .currentUserID) // Replace with the  currentUser!.uid
+                                    .snapshots(),
+                                builder: (context, userDataSnapshot) {
+                                  if (userDataSnapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    // Handle the loading state if needed
+                                    return CircularProgressIndicator(); // Replace with your loading widget
+                                  } else {
+                                    // Update the state variables with the new data
+                                    String userdpURL =
+                                        userDataSnapshot.data!.get('DpURL');
+
+                                    return Container(
+                                      width: width * 0.18,
+                                      height: width * 0.18,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          width: 5,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          CircleAvatar(
+                                            backgroundColor: Colors.white,
+                                            radius: 100,
+                                            backgroundImage: userdpURL.isEmpty
+                                                ? AssetImage(
+                                                    'lib/image_assests/icons/user_dp2.png')
+                                                : Image.network(userdpURL)
+                                                    .image,
+                                          ),
+                                          FloatingActionButton(
+                                            onPressed: () {
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        StoryPostScreen(
+                                                          currentUserId: widget
+                                                              .currentUserID,
+                                                          storyIsOnStatePasser:
+                                                              true,
+                                                          storyPostStatePasser:
+                                                              0,
+                                                        )),
+                                              );
+                                            },
+                                            backgroundColor: Colors.transparent,
+                                            child: Icon(
+                                              Icons.add_circle_outline_sharp,
+                                              size: 60,
+                                              color:
+                                                  Colors.white.withOpacity(0.4),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     );
-                                  },
-                                  foregroundColor: Colors.black,
-                                  backgroundColor: Colors.white,
-                                  child: Icon(
-                                    Icons.add_box_outlined,
-                                    size: 25,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      );
+                                  }
+                                }),
+                          ),
+                        );
+                      }
                     } else {
                       return Align(
                         alignment: Alignment.topRight,
