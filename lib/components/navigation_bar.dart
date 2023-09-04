@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:login_project/screens/chat_list_screen.dart';
 import 'package:login_project/screens/home_screen.dart';
 import 'package:login_project/screens/story_post_screen.dart';
-
 import 'package:login_project/screens/search_screen.dart';
+import 'package:page_animation_transition/animations/top_to_bottom_faded.dart';
+import 'package:page_animation_transition/page_animation_transition.dart';
+import 'package:transitioned_indexed_stack/transitioned_indexed_stack.dart';
 import '../screens/notification_Screen.dart';
 import '../screens/user_profile.dart';
 
@@ -42,7 +44,11 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
           //final height = constraints.maxHeight;
           return Stack(
             children: [
-              IndexedStack(
+              FadeIndexedStack(
+                beginOpacity: 0.0,
+                endOpacity: 1.0,
+                curve: Curves.easeIn,
+                duration: const Duration(milliseconds: 300),
                 index: currentIndex,
                 children: [
                   HomeScreen(
@@ -125,15 +131,13 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => StoryPostScreen(
-                                      currentUserId: currentUser!.uid,
-                                      storyIsOnStatePasser: true,
-                                      storyPostStatePasser: 0,
-                                    )),
-                          );
+                          Navigator.of(context).push(PageAnimationTransition(
+                              page: StoryPostScreen(
+                                currentUserId: currentUser!.uid,
+                                storyIsOnStatePasser: true,
+                                storyPostStatePasser: 0,
+                              ),
+                              pageAnimationType: TopToBottomFadedTransition()));
                         },
                         child: Icon(
                           Icons.image_outlined,
@@ -178,7 +182,7 @@ class _NavigationBarComponentState extends State<NavigationBarComponent> {
                     ],
                   ),
                 ),
-              )
+              ),
             ],
           );
         })));

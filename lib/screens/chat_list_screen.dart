@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:login_project/screens/singleChat_screen.dart';
+import 'package:page_animation_transition/animations/right_to_left_faded_transition.dart';
+import 'package:page_animation_transition/page_animation_transition.dart';
 
 // ignore: must_be_immutable
 class ChatListsScreen extends StatefulWidget {
@@ -223,24 +225,24 @@ class _ChatListsScreenState extends State<ChatListsScreen> {
                                                         horizontal: 5),
                                                     child: GestureDetector(
                                                       onTap: () {
-                                                        Navigator
-                                                            .pushReplacement(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  SingleChatScreen(
-                                                                    currentUser:
-                                                                        widget
-                                                                            .currentUser,
-                                                                    otherUser: user1ID ==
-                                                                            widget.currentUser
-                                                                        ? user2ID
-                                                                        : user1ID,
-                                                                    singleChatId:
-                                                                        currentUserChatList[
-                                                                            index],
-                                                                  )),
-                                                        );
+                                                        Navigator.of(context).push(
+                                                            PageAnimationTransition(
+                                                                page:
+                                                                    SingleChatScreen(
+                                                                  currentUser:
+                                                                      widget
+                                                                          .currentUser,
+                                                                  otherUser: user1ID ==
+                                                                          widget
+                                                                              .currentUser
+                                                                      ? user2ID
+                                                                      : user1ID,
+                                                                  singleChatId:
+                                                                      currentUserChatList[
+                                                                          index],
+                                                                ),
+                                                                pageAnimationType:
+                                                                    RightToLeftFadedTransition()));
                                                       },
                                                       child: Container(
                                                         padding: EdgeInsets

@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
+import 'package:page_animation_transition/animations/left_to_right_faded_transition.dart';
+import 'package:page_animation_transition/page_animation_transition.dart';
 import '../components/flash_messages.dart';
 import '../components/messegeHolder.dart';
 import '../components/navigation_bar.dart';
@@ -46,14 +48,12 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
         return WillPopScope(
           onWillPop: () async {
             // Handle the back button press here
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => NavigationBarComponent(
-                        currentStateChanger: 3,
-                      )),
-            ); // This will navigate back to the previous screen
-
+            // This will navigate back to the previous screen
+            Navigator.of(context).push(PageAnimationTransition(
+                page: NavigationBarComponent(
+                  currentStateChanger: 3,
+                ),
+                pageAnimationType: LeftToRightFadedTransition()));
             return false;
           },
           child: Stack(

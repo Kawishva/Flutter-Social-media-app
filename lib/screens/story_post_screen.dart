@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:page_animation_transition/animations/bottom_to_top_faded_transition.dart';
+import 'package:page_animation_transition/page_animation_transition.dart';
 import '../components/flash_messages.dart';
 import '../components/navigation_bar.dart';
 import '../components/show_dialog_request.dart';
@@ -344,13 +346,11 @@ class _StoryPostScreenState extends State<StoryPostScreen> {
                     EdgeInsets.only(top: width * 9 / 100, right: width / 10),
                 child: IconButton(
                   onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => NavigationBarComponent(
-                                currentStateChanger: 0,
-                              )),
-                    );
+                    Navigator.of(context).push(PageAnimationTransition(
+                        page: NavigationBarComponent(
+                          currentStateChanger: 0,
+                        ),
+                        pageAnimationType: BottomToTopFadedTransition()));
                   },
                   icon: Icon(
                     Icons.close_rounded,
